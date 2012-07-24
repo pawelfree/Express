@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="SRPNService" targetNamespace="http://soap.srpn.kir.com.pl/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://soap.srpn.kir.com.pl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+	<wsdl:types>
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			xmlns:ns1="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.02" xmlns:ns2="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.03"
+			xmlns:mc="http://www.bea.com/wli/sb/context" elementFormDefault="unqualified"
+			targetNamespace="http://soap.srpn.kir.com.pl/" version="1.0">
+			<xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.02"
+				schemaLocation="pacs.008.001.02_SRPN.xsd" />
+			<xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.03"
+				schemaLocation="pacs.002.001.03_SRPN.xsd" />
+			<xs:import namespace="http://www.bea.com/wli/sb/context"
+				schemaLocation="MessageContext.xsd" />
+			<xs:element name="sendTransfer" type="tns:sendTransfer" />
+			<xs:element name="sendTransferResponse" type="tns:sendTransferResponse" />
+			<xs:element name="fault" type="mc:FaultType" />
+			<xs:complexType name="sendTransfer">
+				<xs:sequence>
+					<xs:element ref="ns1:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="sendTransferResponse">
+				<xs:sequence>
+					<xs:element ref="ns2:Document" />
+				</xs:sequence>
+			</xs:complexType>
+
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="sendTransferResponse">
+		<wsdl:part name="parameters" element="tns:sendTransferResponse">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sendTransfer">
+		<wsdl:part name="parameters" element="tns:sendTransfer">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="fault">
+		<wsdl:part name="parameters" element="tns:fault">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="SRPNService">
+		<wsdl:operation name="sendTransfer">
+			<wsdl:input name="sendTransfer" message="tns:sendTransfer">
+			</wsdl:input>
+			<wsdl:output name="sendTransferResponse" message="tns:sendTransferResponse">
+			</wsdl:output>
+			<wsdl:fault name="fault" message="tns:fault" />
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="SRPNServiceSoapBinding" type="tns:SRPNService">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="sendTransfer">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="sendTransfer">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="sendTransferResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="SRPNService">
+		<wsdl:port name="SRPNServicePort" binding="tns:SRPNServiceSoapBinding">
+			<soap:address location="http://localhost:9090/SRPNServicePort" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

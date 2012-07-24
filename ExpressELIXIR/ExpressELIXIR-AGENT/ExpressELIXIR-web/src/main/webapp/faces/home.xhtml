@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+  <f:view contentType="text/html">
+    <h:head>
+      <f:facet name="first">
+        <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" /> 
+        <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+        <title>fastELIX</title>
+      </f:facet>
+
+      <link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/default.css" />
+      <link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/syntaxhighlighter/syntaxhighlighter.css" />
+    </h:head>
+
+    <h:body>
+      <p:messages id="messages" showDetail="true" autoUpdate="true"/>  
+      <div id="contents" align="center" style="margin: 10px auto;"  >
+        <p:layout id="mainlayout"  style="width: 880px; height: 500px">
+          <p:layoutUnit id="center" visible="true" position="center" >
+            <h:form id="transactions"> 
+
+              <p:contextMenu for="basic">  
+                <p:menuitem value="Szczegóły" update=":details" icon="ui-icon-search" oncomplete="transactionDialog.show()"/>  
+              </p:contextMenu>  
+
+              <p:dataTable id="basic"
+                           var="transaction" 
+                           value="#{transactionTable.transactions}"
+                           paginator="true"
+                           paginatorPosition="bottom"
+                           rows="15"
+                           selectionMode="single"
+                           selection="#{transactionTable.selectedTransaction}">  
+
+                <p:ajax event="rowDblselect" update=":details" oncomplete="transactionDialog.show()" />  
+
+                <f:facet name="header" >  
+                  Lista transakcji
+                </f:facet>  
+
+                <p:column>
+                  <f:facet name="header">
+                    Status
+                  </f:facet>
+                  <h:outputLabel value="#{msgs[transaction.status]}"/>
+                </p:column>
+
+                <p:column style="text-align: right">  
+                  <f:facet name="header">  
+                    Identyfikator
+                  </f:facet>  
+                  <h:outputText value="#{transaction.transactionId}" />  
+                </p:column>  
+
+                <p:column style="text-align: right">  
+                  <f:facet name="header">  
+                    Czas
+                  </f:facet>  
+                  <h:outputText value="#{transaction.transactionDate}" >  
+                    <f:convertDateTime type="both"
+                                       pattern="HH:mm:ss dd-MM-yyyy"/>
+                  </h:outputText>                                    
+                </p:column>  
+                <p:column style="text-align: right">  
+                  <f:facet name="header">  
+                    Rachunek nadawcy
+                  </f:facet>  
+                  <h:outputText value="#{transaction.senderIban}" 
+                                converter="ibanConverter"/>  
+                </p:column>  
+
+                <p:column style="text-align: right">  
+                  <f:facet name="header">  
+                    Rachunek odbiorcy 
+                  </f:facet>  
+                  <h:outputText value="#{transaction.receiverIban}" 
+                                converter="ibanConverter"/>  
+                </p:column>  
+                <p:column style="text-align: right">  
+                  <f:facet name="header">  
+                    Kwota   
+                  </f:facet>  
+                  <h:outputLabel value="#{transaction.transactionAmount}"
+                                 escape="true"/>  
+                </p:column>  
+              </p:dataTable>  
+
+
+            </h:form>
+          </p:layoutUnit>
+
+          <p:layoutUnit id="north" 
+                        position="north" 
+                        size="64" 
+                        style="padding-bottom: 1px; 
+                        text-align: left; border-top: none;">
+            <h:form id="userinfo" >
+              <p:panelGrid style="width: 550px">
+                <p:row>
+                  <p:column>Użytkownik&nbsp;:&nbsp;</p:column>
+                  <p:column style="text-align: left;">#{mainView.user.firstName} #{mainView.user.lastName}</p:column>
+                </p:row>
+                <p:row>
+                  <p:column>Rachunek&nbsp;:&nbsp;</p:column>
+                  <p:column>
+                    <p:selectOneMenu id="selectMenu1" 
+                                     value="#{mainView.selectedAccount}"
+                                     converter="accountConverter"
+                                     immediate="true"
+                                     style="width: 280"> 
+                      <f:selectItems value="#{mainView.accounts}"
+                                     var="account"
+                                     itemLabel="#{account.formattedAccountNumber}"
+                                     itemValue="#{account}"/>
+                      <p:ajax update="saldo1 saldo2 :transactions:basic :newTransactionForm" immediate="true" event="change" />
+                    </p:selectOneMenu>
+                  </p:column>
+                  <p:column>Saldo&nbsp;: </p:column>
+                  <p:column style="min-width: 90px;text-align: right">
+                    <h:outputText id="saldo1" value="#{mainView.selectedAccount.balance}" />
+                  </p:column>
+                  <p:column>Zablokowane&nbsp;środki&nbsp;: </p:column>
+                  <p:column style="min-width: 92px; text-align: right">
+                    <h:outputText  id="saldo2" value="#{mainView.selectedAccount.blockedBalance}" />
+                  </p:column>                            
+                </p:row>
+              </p:panelGrid>
+            </h:form>
+          </p:layoutUnit>
+
+          <p:layoutUnit position="south" size="25" style="border-bottom: none">
+            <div style="position: absolute; left: 0px; width: 100%; text-align: center;">
+              <h:outputText value="fastELIX - BSB 2012" />
+            </div>
+            <div id="chooserButton" style="float: right; overflow: hidden" >
+              <h:form id="themeChooserForm">
+                <p:overlayPanel id="themePanel" 
+                                for="themeSwitch" 
+                                hideEffect="fade"
+                                appendToBody="true"
+                                my="right bottom">  
+                  <p:themeSwitcher value="#{themeSwitcherBean.theme}" style="width:155px" effect="fade">
+                    <f:selectItem itemLabel="Choose Theme" itemValue="" />
+                    <f:selectItems value="#{themeSwitcherBean.themes}" />
+                    <p:ajax listener="#{themeSwitcherBean.saveTheme}" />
+                  </p:themeSwitcher>                                
+                </p:overlayPanel> 
+                <p:commandButton id="themeSwitch" 
+                                 icon="ui-icon ui-icon-arrow-0-e" 
+                                 style="height: 14px; width: 24px;" 
+                                 title="Wybierz schemat"
+                                 type="button"/>  
+              </h:form>
+            </div>
+          </p:layoutUnit>
+
+          <p:layoutUnit position="west" size="20" header="Left" visible="false" closable="false" collapsible="false" rendered="false" />
+
+          <p:layoutUnit position="east" size="50" style="border-right: none" resizable="false" closable="false" collapsible="false" >
+            <h:form id="actionButtonForm" >
+              <p:commandButton title="Odśwież"
+                               id="refreshButton"
+                               value="O"
+                               style="height: 25; width: 25" 
+                               actionListener="#{transactionTable.refreshAll}"
+                               update=":userinfo:saldo1 :userinfo:saldo2 :transactions:basic"
+                               />
+              <p:separator />
+              <p:commandButton title="Nowy przelew" 
+                               value="N" 
+                               id="showDialogButton" 
+                               style="height: 25; width: 25" 
+                               type="button" 
+                               ajax="true"
+                               onclick="dlg.show()" />
+              <p:separator />
+              <p:commandButton title="Ustawienia"
+                               value="U"
+                               style="height: 25; width: 25" 
+                               type="button"
+                               ajax="true"
+                               immediate="true"
+                               onclick="ustawieniaDlg.show()"/>
+            </h:form>
+          </p:layoutUnit>
+        </p:layout>
+      </div>
+
+      <p:dialog id="statementdialog" 
+                header="Lista przetworzonych komunikatów" 
+                widgetVar="transactionDialog" 
+                resizable="false"
+                showEffect="explode"
+                hideEffect="explode" 
+                modal="true">
+        
+        <h:panelGrid id="details">
+          <f:facet name="header">
+            <h:outputText value="Identyfikator przelewu #{transactionTable.selectedTransaction.transactionId}" />
+          </f:facet>
+          <p:dataTable var="statement"
+                       value="#{transactionTable.statements}"
+                       selection="#{transactionTable.selectedStatement}"
+                       selectionMode="single">
+            <p:ajax event="rowDblselect" update=":statementdetails" oncomplete="satementsDlg.show()" />              
+            <p:column>  
+              <f:facet name="header">  
+                komunikat   
+              </f:facet>  
+              <h:outputText value="#{msgs[statement.status]}" />
+            </p:column>              
+          </p:dataTable>
+
+        </h:panelGrid>
+      </p:dialog>  
+
+      <p:dialog id="statementdetailsdialog"
+                header="Szczegóły komunikatu"
+                widgetVar="satementsDlg"
+                showEffect="explode"
+                hideEffect="explode"
+                resizable="false"
+                modal="true"
+                height="500"
+                width="440">
+        <h:panelGrid id="statementdetails">
+          <f:facet name="header">
+            <h:outputText value="Identyfikator komunikatu #{transactionTable.selectedStatement.messageId}" />
+          </f:facet>
+          <h:outputText value="#{transactionTable.selectedStatement.prettyFormatedXML}" escape="false" />
+        </h:panelGrid>
+      </p:dialog>
+
+      <p:dialog id="ustawienia"
+                header="Ustawienia"
+                closable="false"
+                resizable="false"
+                modal="true"
+                widgetVar="ustawieniaDlg"
+                width="360" 
+                showEffect="fade" 
+                hideEffect="fade">
+        <h:form id="ustaw" >
+          <p:panelGrid>
+            <p:row>
+              <p:column style="min-width: 100">Prezentacja transakcji dla </p:column>  
+              <p:column>
+                <p:selectBooleanButton value="#{transactionTable.userTransactions}" onLabel="użytkownika" offLabel="rachunku" />  
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column>Prezentacja transakcji </p:column>
+              <p:column>
+                <p:selectBooleanButton value="#{transactionTable.outgoingTansactions}" onLabel="wychodzących" offLabel="przychodzących" />  
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+          <p:commandButton id="submitButton" 
+                           value="Zamknij" 
+                           actionListener="#{transactionTable.updateSettings}" 
+                           update=":transactions:basic :newTransactionForm :userinfo:saldo2 :userinfo:saldo1"
+                           onclick="ustawieniaDlg.hide()"/>
+        </h:form>
+
+      </p:dialog>
+
+      <p:dialog id="newTransactionDialog"
+                header="Nowy przelew"
+                closable="true" 
+                modal="true" 
+                resizable="false"
+                widgetVar="dlg" 
+                width="360" 
+                showEffect="fade" 
+                hideEffect="fade">
+        <h:form id="newTransactionForm" >
+          <h:panelGrid id="newTransactionPanel" columns="2" style="margin-bottom:10px">
+            <h:outputLabel value="Konto nadawcy" />
+            <p:selectOneMenu id="selectMenu2" 
+                             value="#{mainView.newTransactionAccount}"
+                             converter="accountConverter"
+                             immediate="true"
+                             rendered="#{transactionTable.userTransactions}"> 
+              <f:selectItems value="#{mainView.accounts}"
+                             var="account"
+                             itemLabel="#{account.formattedAccountNumber}"
+                             itemValue="#{account}"/>
+              <p:ajax immediate="true" event="change" />
+            </p:selectOneMenu>         
+            <h:outputLabel id="senderIbanOutput"
+                           title="Numer rachunku IBAN nadawcy"
+                           value="#{mainView.selectedAccount.formattedAccountNumber}"
+                           rendered="#{not transactionTable.userTransactions}"/>
+            <h:outputLabel for="receiverIban" value="Konto odbiorcy" />
+            <p:inputText id="receiverIban" 
+                         title="Numer rachunku IBAN odbiorcy"
+                         converter="ibanConverter"
+                         validator="ibanValidator"
+                         size="28"
+                         value="#{transactionTable.newTransaction.receiverIban}" />
+            <h:outputLabel for="transactionAmount" value="Kwota przelewu" />
+            <p:inputText id="transactionAmount" 
+                         title="Kwota przelewu"
+                         value="#{transactionTable.newTransaction.transactionAmount}" />
+          </h:panelGrid>
+          <p:commandButton id="submitButton" 
+                           value="Zatwierdź" 
+                           actionListener="#{transactionTable.sendNewTransaction}" 
+                           update=":transactions:basic :userinfo:saldo2"
+                           process="@form"
+                           oncomplete="handleTransactionRequest(xhr, status, args)" />
+          <p:commandButton id="cancelButton"
+                           value="Anuluj"
+                           process="@form"
+                           immediate="true"
+                           onclick="dlg.hide()"/>
+          <script type="text/javascript">  
+            function handleTransactionRequest(xhr, status, args) {  
+              if(args.validationFailed) {  
+                jQuery('#newTransactionDialog').effect("shake", { times:2 }, 100);  
+              } else {  
+                dlg.hide();  
+              }  
+            }  
+          </script>                      
+        </h:form>
+      </p:dialog>
+
+    </h:body>
+    <style type="text/css" >
+      .ui-panelgrid td{
+        border: none; 
+      }            
+
+      #userinfo .ui-widget-content{
+        border: none;
+      }
+
+      #ustaw .ui-widget-content{
+        border: none;
+      }
+
+      .ui-dt-c { 
+        font-size: 7pt !important; 
+      }        
+
+    </style>
+
+  </f:view>
+</html>
+

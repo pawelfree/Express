@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="AgentService"
+	targetNamespace="http://soap.srpn.kir.com.pl/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:tns="http://soap.srpn.kir.com.pl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+	<wsdl:types>
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			xmlns:ns1="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.02" xmlns:ns2="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.03"
+			xmlns:ns3="urn:iso:std:iso:20022:tech:xsd:pacs.004.001.02" xmlns:tns="http://soap.srpn.kir.com.pl/"
+			elementFormDefault="unqualified" targetNamespace="http://soap.srpn.kir.com.pl/"
+			version="1.0">
+			<xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.02"
+				schemaLocation="pacs.008.001.02_SRPN.xsd" />
+			<xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.03"
+				schemaLocation="pacs.002.001.03_SRPN.xsd" />
+			<xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.004.001.02"
+				schemaLocation="pacs.004.001.02_SRPN.xsd" />
+			<xs:element name="acknowledgeCredit" type="tns:acknowledgeCredit" />
+			<xs:element name="acknowledgeCreditResponse" type="tns:acknowledgeCreditResponse" />
+			<xs:element name="acknowledgeDebit" type="tns:acknowledgeDebit" />
+			<xs:element name="acknowledgeDebitResponse" type="tns:acknowledgeDebitResponse" />
+			<xs:element name="authorizeTransfer" type="tns:authorizeTransfer" />
+			<xs:element name="authorizeTransferResponse" type="tns:authorizeTransferResponse" />
+			<xs:element name="ping" type="tns:ping" />
+			<xs:element name="pingResponse" type="tns:pingResponse" />
+			<xs:element name="rejectTransfer" type="tns:rejectTransfer" />
+			<xs:element name="rejectTransferResponse" type="tns:rejectTransferResponse" />
+			<xs:complexType name="acknowledgeDebit">
+				<xs:sequence>
+					<xs:element ref="ns1:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="acknowledgeDebitResponse">
+				<xs:sequence>
+					<xs:element ref="ns2:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="authorizeTransfer">
+				<xs:sequence>
+					<xs:element ref="ns1:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="authorizeTransferResponse">
+				<xs:sequence>
+					<xs:element ref="ns2:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="ping">
+				<xs:sequence />
+			</xs:complexType>
+			<xs:complexType name="pingResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="pong" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="rejectTransfer">
+				<xs:sequence>
+					<xs:element ref="ns3:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="rejectTransferResponse">
+				<xs:sequence>
+					<xs:element ref="ns2:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="acknowledgeCredit">
+				<xs:sequence>
+					<xs:element ref="ns1:Document" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="acknowledgeCreditResponse">
+				<xs:sequence>
+					<xs:element ref="ns2:Document" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="pingResponse">
+		<wsdl:part name="parameters" element="tns:pingResponse">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="acknowledgeDebitResponse">
+		<wsdl:part name="parameters" element="tns:acknowledgeDebitResponse">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="ping">
+		<wsdl:part name="parameters" element="tns:ping">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="rejectTransferResponse">
+		<wsdl:part name="parameters" element="tns:rejectTransferResponse">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="authorizeTransferResponse">
+		<wsdl:part name="parameters" element="tns:authorizeTransferResponse">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="acknowledgeCredit">
+		<wsdl:part name="parameters" element="tns:acknowledgeCredit">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="acknowledgeDebit">
+		<wsdl:part name="parameters" element="tns:acknowledgeDebit">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="rejectTransfer">
+		<wsdl:part name="parameters" element="tns:rejectTransfer">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="acknowledgeCreditResponse">
+		<wsdl:part name="parameters" element="tns:acknowledgeCreditResponse">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="authorizeTransfer">
+		<wsdl:part name="parameters" element="tns:authorizeTransfer">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="AgentService">
+		<wsdl:operation name="acknowledgeDebit">
+			<wsdl:input name="acknowledgeDebit" message="tns:acknowledgeDebit">
+			</wsdl:input>
+			<wsdl:output name="acknowledgeDebitResponse" message="tns:acknowledgeDebitResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="authorizeTransfer">
+			<wsdl:input name="authorizeTransfer" message="tns:authorizeTransfer">
+			</wsdl:input>
+			<wsdl:output name="authorizeTransferResponse" message="tns:authorizeTransferResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ping">
+			<wsdl:input name="ping" message="tns:ping">
+			</wsdl:input>
+			<wsdl:output name="pingResponse" message="tns:pingResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="rejectTransfer">
+			<wsdl:input name="rejectTransfer" message="tns:rejectTransfer">
+			</wsdl:input>
+			<wsdl:output name="rejectTransferResponse" message="tns:rejectTransferResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="acknowledgeCredit">
+			<wsdl:input name="acknowledgeCredit" message="tns:acknowledgeCredit">
+			</wsdl:input>
+			<wsdl:output name="acknowledgeCreditResponse" message="tns:acknowledgeCreditResponse">
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="AgentServiceSoapBinding" type="tns:AgentService">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="acknowledgeDebit">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="acknowledgeDebit">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="acknowledgeDebitResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="authorizeTransfer">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="authorizeTransfer">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="authorizeTransferResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ping">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="ping">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="pingResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="rejectTransfer">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="rejectTransfer">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="rejectTransferResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="acknowledgeCredit">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="acknowledgeCredit">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="acknowledgeCreditResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="AgentService">
+		<wsdl:port name="AgentServicePort" binding="tns:AgentServiceSoapBinding">
+			<soap:address location="http://localhost:9090/AgentServicePort" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

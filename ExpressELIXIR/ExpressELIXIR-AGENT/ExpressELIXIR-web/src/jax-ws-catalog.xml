@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="file:/D:/zabawy/Specyfikacje%20Express%20ELIXIR%201.21/ST%20Express%20ELIXIR%20nr%204/AgentService.wsdl" uri="wsdl/SRPNService.wsdl"/>
+    <system systemId="file:/D:/zabawy/Specyfikacje%20Express%20ELIXIR%201.21/ST%20Express%20ELIXIR%20nr%204/pacs.008.001.02_SRPN.xsd" uri="wsdl/pacs.008.001.02_SRPN.xsd"/>
+    <system systemId="file:/D:/zabawy/Specyfikacje%20Express%20ELIXIR%201.21/ST%20Express%20ELIXIR%20nr%204/pacs.002.001.03_SRPN.xsd" uri="wsdl/pacs.002.001.03_SRPN.xsd"/>
+    <system systemId="file:/D:/zabawy/Specyfikacje%20Express%20ELIXIR%201.21/ST%20Express%20ELIXIR%20nr%204/pacs.004.001.02_SRPN.xsd" uri="wsdl/pacs.004.001.02_SRPN.xsd"/>
+</catalog>
