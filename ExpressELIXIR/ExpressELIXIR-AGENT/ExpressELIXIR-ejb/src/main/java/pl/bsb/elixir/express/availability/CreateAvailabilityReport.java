@@ -3,7 +3,7 @@
  * 
  */
 package pl.bsb.elixir.express.availability;
-import pl.com.kir.srpn.soap.availability.*;
+import pl.com.kir.srpn.soap.availability.ObjectFactory;
 
 /**
  *
