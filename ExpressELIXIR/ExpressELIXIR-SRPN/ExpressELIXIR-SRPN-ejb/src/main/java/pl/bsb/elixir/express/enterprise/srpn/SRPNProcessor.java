@@ -69,7 +69,7 @@ public class SRPNProcessor implements ISRPNProcessor {
     Document acknowledgeDocument = CreditTransferV02DocumentCreator.createAcknowledgeDebitDocument(sendTransferDocument);
     transaction.setAcknowledgeDebitStatus(SRPNInternalStatus.ACKNOWLEDGE_DEBIT);
     transactionHelper.addStatement(new SRPNStatement(JAXBMarshaller.marshallToBase64(acknowledgeDocument), transaction));
-    String url = "http://pdudek-nb:8080/AgentService/AgentService".concat(transaction.getReceiverKNR()).concat("?wsdl");
+    String url = "http://localhost:8080/AgentService/AgentService".concat(transaction.getReceiverKNR()).concat("?wsdl");
     iso.std.iso._20022.tech.xsd.pacs_002_001.Document response = null;
     for (int i = 0; i < RETRY_COUNTER; i++) {
       response = iSRPNSender.acknowledgeDebit(url, acknowledgeDocument);
@@ -116,7 +116,7 @@ public class SRPNProcessor implements ISRPNProcessor {
     Document acknowledgeDocument = CreditTransferV02DocumentCreator.createAcknowledgeCreditDocument(sendTransferDocument);
     transaction.setAcknowledgeCreditStatus(SRPNInternalStatus.ACKNOWLEDGE_CREDIT);
     transactionHelper.addStatement(new SRPNStatement(JAXBMarshaller.marshallToBase64(acknowledgeDocument), transaction));
-    String url = "http://pdudek-nb:8080/AgentService/AgentService".concat(transaction.getReceiverKNR()).concat("?wsdl");
+    String url = "http://localhost:8080/AgentService/AgentService".concat(transaction.getReceiverKNR()).concat("?wsdl");
 
     iso.std.iso._20022.tech.xsd.pacs_002_001.Document response = null;
     for (int i = 0; i < RETRY_COUNTER; i++) {
@@ -167,7 +167,7 @@ public class SRPNProcessor implements ISRPNProcessor {
             sendTransferDocument);
     transaction.setStatus(SRPNInternalStatus.REJECT_TRANSFER);
     transactionHelper.addStatement(new SRPNStatement(JAXBMarshaller.marshallToBase64(rejectDocument), transaction));
-    String url = "http://pdudek-nb:8080/AgentService/AgentService".concat(transaction.getSenderKNR()).concat("?wsdl");
+    String url = "http://localhost:8080/AgentService/AgentService".concat(transaction.getSenderKNR()).concat("?wsdl");
     iso.std.iso._20022.tech.xsd.pacs_002_001.Document response = null;
     for (int i = 0; i < RETRY_COUNTER; i++) {
       response = iSRPNSender.rejectTransfer(url, rejectDocument);
@@ -212,7 +212,7 @@ public class SRPNProcessor implements ISRPNProcessor {
     Document authorizeDocument = CreditTransferV02DocumentCreator.createAuthorizeTransferDocument(sendTransferDocument);
     transaction.setStatus(SRPNInternalStatus.AUTHORIZE);
     transactionHelper.addStatement(new SRPNStatement(JAXBMarshaller.marshallToBase64(authorizeDocument), transaction));
-    String url = "http://pdudek-nb:8080/AgentService/AgentService".concat(transaction.getReceiverKNR()).concat("?wsdl");
+    String url = "http://localhost:8080/AgentService/AgentService".concat(transaction.getReceiverKNR()).concat("?wsdl");
     iso.std.iso._20022.tech.xsd.pacs_002_001.Document response = null;
     for (int i = 0; i < RETRY_COUNTER; i++) {
       response = iSRPNSender.authorizeTransfer(url, authorizeDocument);
