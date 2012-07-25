@@ -24,7 +24,8 @@ public class AgentSender implements IAgentSender {
   private static final Logger logger = Logger.getLogger(AgentSender.class.getName());
   static final long serialVersionUID = 1L;
 
-  @WebServiceRef(wsdlLocation= "http://localhost:8080/SRPNService/SRPNService?wsdl")
+  @WebServiceRef(wsdlLocation= "META-INF/wsdl/SRPNService.wsdl")
+//  @WebServiceRef(wsdlLocation= "http://localhost:8080/SRPNService/SRPNService?wsdl")
   SRPNService_Service srpnService;
 
    
