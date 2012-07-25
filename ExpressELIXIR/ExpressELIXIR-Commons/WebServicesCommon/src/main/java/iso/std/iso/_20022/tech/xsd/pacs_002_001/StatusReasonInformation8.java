@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import pl.bsb.elixir.express.util.ExternalReturnReason1Code;
 import pl.bsb.elixir.express.util.SRPNRejectionReasonCode;
 
 /**
@@ -85,7 +84,7 @@ public class StatusReasonInformation8 {
           String addtlInf) {
     StatusReasonInformation8 statusReasonInformation8 = new StatusReasonInformation8();
     statusReasonInformation8.setAddtlInf(addtlInf);
-    statusReasonInformation8.setRsn(StatusReason6Choice.instance(reasonCode, srpnRejectionReasonCode));
-    return statusReasonInformation8;
+    statusReasonInformation8.setRsn(StatusReason6Choice.instance(reasonCode, srpnRejectionReasonCode)); 
+    return statusReasonInformation8; 
   }
 }
