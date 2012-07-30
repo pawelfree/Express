@@ -11,7 +11,8 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Wspólne moduły ExpressELIXIRa</name>
-    <modules>
-        <module>WebServicesCommon</module>
+  <modules>
+      <module>WebServicesCommon</module>
+      <module>AvailabilityTable</module>
   </modules>
-</project>
+</project>  
