@@ -248,3 +248,7 @@ img.right {
 .ui-widget {
     font-size: 12px !important;
 }
+
+.center {
+	text-align	:	center;
+}

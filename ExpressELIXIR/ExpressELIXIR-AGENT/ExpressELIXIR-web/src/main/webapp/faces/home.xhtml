@@ -161,7 +161,7 @@
 
           <p:layoutUnit position="west" size="20" header="Left" visible="false" closable="false" collapsible="false" rendered="false" />
 
-          <p:layoutUnit position="east" size="50" style="border-right: none" resizable="false" closable="false" collapsible="false" >
+          <p:layoutUnit position="east" size="60" style="border-right: none" resizable="false" closable="false" collapsible="false" >
             <h:form id="actionButtonForm" >
               <p:commandButton title="Odśwież"
                                id="refreshButton"
@@ -186,6 +186,13 @@
                                ajax="true"
                                immediate="true"
                                onclick="ustawieniaDlg.show()"/>
+              <p:separator />
+              <p:commandButton title="Statyczne Tabele Dostępności"
+                               action="std?faces-redirect=true"
+                               value="std"
+                               style="height: 25; width: 25" 							   
+                               ajax="false"
+                               />
             </h:form>
           </p:layoutUnit>
         </p:layout>
