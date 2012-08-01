@@ -6,6 +6,34 @@
   <version>1.0</version>
   <packaging>pom</packaging>
   <name>Aplikacja centralna SRPN</name>
+  <repositories>
+      <repository>
+          <id>artifactory1</id>
+          <name>BSB Artifactory sorbelix repo</name>
+          <url>http://172.30.170.3:8080/artifactory/libs-snapshot-local</url>
+          <releases>
+              <enabled>true</enabled>
+              <updatePolicy>always</updatePolicy>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+              <updatePolicy>never</updatePolicy>
+          </snapshots>
+      </repository>
+      <repository>
+          <id>artifactory2</id>
+          <name>BSB Artifactory sorbelix deps</name>
+          <url>http://172.30.170.3:8080/artifactory/sorbelix-libs/</url>
+          <releases>
+              <enabled>true</enabled>
+              <updatePolicy>always</updatePolicy>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+              <updatePolicy>never</updatePolicy>
+          </snapshots>          
+      </repository>
+  </repositories>
   <build>
     <plugins>
       <plugin>

@@ -1,21 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>pl.bsb.elixir.express</groupId>
-  <artifactId>ExpressELIXIR-AGENT</artifactId>
-  <version>1.0</version>
-  <packaging>pom</packaging>
-  <name>Aplikacja kliencka SRPN</name>
-  <repositories>
-    <repository>  
-      <id>prime-repo</id>  
-      <name>PrimeFaces Maven Repository</name>  
-      <url>http://repository.primefaces.org</url>  
-      <layout>default</layout>  
-    </repository>  
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>pl.bsb.elixir.express</groupId>
+    <artifactId>ExpressELIXIR-AGENT</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>AplikacjaklienckaSRPN</name>
+    <repositories>
         <repository>
-          <id>artifactory1</id>
-          <name>BSB Artifactory sorbelix repo</name>
+            <id>prime-repo</id>
+            <name>PrimeFacesMavenRepository</name>
+            <url>http://repository.primefaces.org</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>artifactory1</id>
+            <name>BSBArtifactorysorbelixrepo</name>
             <url>http://172.30.170.3:8080/artifactory/libs-snapshot-local</url>
             <releases>
                 <enabled>true</enabled>
@@ -26,11 +25,10 @@
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
-    </repository>  
         <repository>
-          <id>artifactory2</id>
-          <name>BSB Artifactory sorbelix deps</name>
-            <url>http://172.30.170.3:8080/artifactory/sorbelix-libs</url>
+            <id>artifactory2</id>
+            <name>BSBArtifactorysorbelixdeps</name>
+            <url>http://172.30.170.3:8080/artifactory/sorbelix-libs/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
@@ -40,60 +38,60 @@
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
-  </repositories>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <showDeprecation>true</showDeprecation>
-          <source>1.7</source>
-          <target>1.7</target>
-          <encoding>${project.build.sourceEncoding}</encoding>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.4.3</version>
-        <configuration>
-          <encoding>${project.build.sourceEncoding}</encoding>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  <modules>
-    <module>ExpressELIXIR-ear</module>
-    <module>ExpressELIXIR-ejb</module>
-    <module>ExpressELIXIR-web</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.6.6</version>
-      </dependency>
-      <dependency>
-        <groupId>pl.bsb.elixir.express</groupId>
-        <artifactId>WebServicesCommon</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.primefaces</groupId>
-        <artifactId>primefaces</artifactId>
-        <version>3.3.1</version>
-      </dependency>
-      <dependency>     
-        <groupId>org.hibernate</groupId>     
-        <artifactId>hibernate-validator</artifactId>     
-        <version>4.3.0.Final</version> 
-      </dependency>            
-    </dependencies>
-  </dependencyManagement>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <showDeprecation>true</showDeprecation>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <modules>
+        <module>ExpressELIXIR-ear</module>
+        <module>ExpressELIXIR-ejb</module>
+        <module>ExpressELIXIR-web</module>
+    </modules>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>1.6.6</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.bsb.elixir.express</groupId>
+                <artifactId>WebServicesCommon</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.primefaces</groupId>
+                <artifactId>primefaces</artifactId>
+                <version>3.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>4.3.0.Final</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 </project>
