@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>pl.bsb.elixir.express</groupId>
-  <artifactId>ExpressELIXIR</artifactId>
-  <version>1.0</version>
-  <packaging>pom</packaging>
-  <name>ExpressELIXIR</name>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>pl.bsb.elixir.express</groupId>
+    <artifactId>ExpressELIXIR</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>ExpressELIXIR</name>
     <build>
         <plugins>
             <plugin>
@@ -29,12 +29,12 @@
         </plugins>
     </build>
     <modules>
-    <module>ExpressELIXIR-AGENT</module>
-    <module>ExpressELIXIR-SRPN</module>
-    <module>ExpressELIXIR-Commons</module>
-  </modules>
-  <properties>
-    <netbeans.hint.deploy.server>gfv3ee6</netbeans.hint.deploy.server>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+        <module>ExpressELIXIR-AGENT</module>
+        <module>ExpressELIXIR-SRPN</module>
+        <module>ExpressELIXIR-Commons</module>
+    </modules>
+    <properties>
+        <netbeans.hint.deploy.server>gfv3ee6</netbeans.hint.deploy.server>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 </project>
