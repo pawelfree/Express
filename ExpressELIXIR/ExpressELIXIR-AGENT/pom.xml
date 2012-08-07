@@ -4,7 +4,7 @@
     <artifactId>ExpressELIXIR-AGENT</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
-    <name>AplikacjaklienckaSRPN</name>
+    <name>Aplikacja kliencka SRPN</name>
     <repositories>
         <repository>
             <id>prime-repo</id>

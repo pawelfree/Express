@@ -13,6 +13,6 @@ import javax.jws.WebService;
         endpointInterface = "pl.com.kir.srpn.soap.AgentService", 
         targetNamespace = "http://soap.srpn.kir.com.pl/", 
         wsdlLocation = "META-INF/wsdl/AgentService.wsdl")
-public class AgentService19606211 extends AgentService {
+public class AgentService60000001 extends AgentService {
     
 }

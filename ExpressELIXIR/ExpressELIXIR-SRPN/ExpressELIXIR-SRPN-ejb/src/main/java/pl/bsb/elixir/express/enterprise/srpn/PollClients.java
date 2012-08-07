@@ -53,8 +53,8 @@ public class PollClients {
     new IPingClient() {
       @Override
       public void execute() {
-        pollClient("19606211");
-        pollClient("19609443");
+        pollClient("60000001");
+        pollClient("60000002");
       }
     }.execute();
 
