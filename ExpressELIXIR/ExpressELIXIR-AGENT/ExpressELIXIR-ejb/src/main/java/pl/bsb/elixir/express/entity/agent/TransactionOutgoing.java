@@ -1,5 +1,6 @@
 package pl.bsb.elixir.express.entity.agent;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -34,6 +35,18 @@ public class TransactionOutgoing extends Transaction {
     @Size(min = 8, max = 8)
     @NotNull
     private String mainKNR;
+    
+    public TransactionOutgoing() {}
+    
+    public TransactionOutgoing(String transactionId, Account account, Money transactionAmount, String receiverIBAN, String knr) {
+        setTransactionDate(new Date());
+        setTransactionId(transactionId);
+        setSenderAccount(account);
+        setSenderIban(account.getIban());
+        mainKNR = knr;
+        setTransactionAmount(transactionAmount);
+        setReceiverIban(receiverIBAN);
+    }
     
     public Account debitAndReleaseBlockade(Money amount) {
       senderAccount.debit(amount);

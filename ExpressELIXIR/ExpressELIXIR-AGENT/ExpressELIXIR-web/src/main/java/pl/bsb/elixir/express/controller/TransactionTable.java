@@ -2,29 +2,33 @@ package pl.bsb.elixir.express.controller;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.inject.Inject;
 import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.domain.StatementDataModel;
 import pl.bsb.elixir.express.domain.TransactionDataModel;
+import pl.bsb.elixir.express.enterprise.agent.UniqueTransactionId;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.ISendTransfer;
 import pl.bsb.elixir.express.entity.agent.Account;
+import pl.bsb.elixir.express.entity.agent.Money;
 import pl.bsb.elixir.express.entity.agent.Statement;
 import pl.bsb.elixir.express.entity.agent.Transaction;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
 import pl.bsb.elixir.express.entity.agent.User;
-import pl.bsb.elixir.express.entity.agent.provider.AccountProvider;
 import pl.bsb.elixir.express.entity.agent.provider.StatementProvider;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionIncomingProvider;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
@@ -38,7 +42,8 @@ import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
 public class TransactionTable implements Serializable {
 
     //TODO jak sie wysypie webservice to próba dodania zdetachowanej encji zamiast nowej
-    private static final Logger logger = Logger.getLogger(TransactionTable.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(TransactionTable.class);    
+
     private static final long serialVersionUID = 3L;
     @EJB
     TransactionOutgoingProvider transactionOutgoingProvider;
@@ -47,7 +52,7 @@ public class TransactionTable implements Serializable {
     @EJB
     ISendTransfer sendTransferProcessor;
     @EJB
-    AccountProvider accountProvider;
+    UniqueTransactionId uniqueTransactionId;
     @EJB
     StatementProvider statementProvider;
     @Inject
@@ -106,43 +111,64 @@ public class TransactionTable implements Serializable {
     }
 
     public void sendNewTransaction() {
+        Account account = mainView.getNewTransactionAccount();
         if (sendTransactionsFromFile) {
+            if (!transactionsFromFile.isEmpty()) {
+                sendTransferProcessor.process(transactionsFromFile);
+            }
         } else {
             User user = mainView.getUser();
-
-            if (!mainView.getNewTransactionAccount().canIncreaseBlockedAmount(newTransaction.getTransactionAmount())) {
+            Money amount = newTransaction.getTransactionAmount();
+            if (!account.canIncreaseBlockedAmount(amount)) {
                 //TODO ustawić parametry walidacji w sesji
                 return;
             }
-            newTransaction.setTransactionDate(new Date());
-            newTransaction.setTransactionId(Long.toString(System.currentTimeMillis()));
-            newTransaction.setSenderAccount(mainView.getNewTransactionAccount());
-            newTransaction.setMainKNR(user.getParticipant().getMainKNR());
-            newTransaction.setSenderIban(mainView.getNewTransactionAccount().getIban());
             //TODO błędy
-            Boolean result = sendTransferProcessor.process(newTransaction);
-            if (result) {
-                Account transactionAccount = mainView.getNewTransactionAccount();
-                transactionAccount.addToBlockedBalance(newTransaction.getTransactionAmount());
-                accountProvider.update(transactionAccount);
-                mainView.setSelectedAccount(transactionAccount);
-            }
+            sendTransferProcessor.process(new TransactionOutgoing(
+                    Long.toString(uniqueTransactionId.next()),
+                    account,
+                    amount,
+                    newTransaction.getReceiverIban(),
+                    user.getParticipant().getMainKNR()));
         }
+        //TODO tu nie ustawianie tylko odswiezanie
+        mainView.setSelectedAccount(account);
         newTransaction = new TransactionOutgoing();
     }
+    private List<TransactionOutgoing> transactionsFromFile = Collections.EMPTY_LIST;
 
     public void handleFileUpload(FileUploadEvent event) {
+        Account account = mainView.getNewTransactionAccount();
+        User user = mainView.getUser();
+        transactionsFromFile = new ArrayList();
         try {
-            System.err.println(event.getFile().getFileName());
             Path path = Paths.get(event.getFile().getFileName());
-            System.err.println("1");
             List<String> contents = Files.readAllLines(path, Charset.defaultCharset());
-            System.err.println("2");
+            String[] line;
+            Money amount;
+            String receiverIBAN;
             for (String b : contents) {
-                System.out.println(b);
+                line = b.split(";");
+                //TODO to sprawdzanie powinno byc lepsze np. amount > 0
+                if ((line[0] == null) || (line[1] == null) || (line[0].length() != 26) || (line[1].length() == 0) ) {
+                    logger.info("Error reading file");
+                    return;
+                }
+                amount = new Money(new BigDecimal(line[1]));
+                receiverIBAN = line[0];
+                if (!account.canIncreaseBlockedAmount(amount)) {
+                    transactionsFromFile = new ArrayList();
+                    return;
+                }
+                transactionsFromFile.add(new TransactionOutgoing(
+                        Long.toString(uniqueTransactionId.next()),
+                        account,
+                        amount,
+                        receiverIBAN,
+                        user.getParticipant().getMainKNR()));
             }
         } catch (IOException | NullPointerException e) {
-            logger.warning(e.getMessage());
+            logger.error("Cant read file",e);
         }
     }
 

@@ -43,6 +43,7 @@ public class AuthorizeTransfer implements IAuthorizeTransfer {
 
     //TODO zweryfikować czy obsługiwane są wszystkie przypadki błędów - dorobić szczegółowe statusy
     CreditTransferTransactionInformation11 ctti = document.getFIToFICstmrCdtTrf().getCdtTrfTxInf();
+    //TODO co jesli pod spodem zwróci zdublowaną transakcję!!! to jest przypadek biznesowy
     TransactionIncoming transactionIncoming = transactionIncomingProvider.getTransactionById(ctti.getPmtId().getTxId());
     Account account = getAccountIfExist(ctti.getCdtrAcct().getId().getIBAN());
     //Status nie jest ważny - nie powinno być takiej transakcji

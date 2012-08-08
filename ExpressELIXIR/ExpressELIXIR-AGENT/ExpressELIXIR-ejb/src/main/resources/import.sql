@@ -6,7 +6,7 @@ INSERT INTO users(email,firstName,lastName,login,password,roleName,participant_i
 INSERT INTO users(email,firstName,lastName,login,password,roleName,participant_id) VALUES  ('Zofia.Skąpa@wp.pl','Zofia','Skąpa','zoska12','veorrS3TzjgPXxqBTy8wS+8BJCjv9rMGrW4jeWfbtOI=','UserRole', (SELECT id FROM Participants WHERE mainKNR='60000001'));
 INSERT INTO users(email,firstName,lastName,login,password,roleName,participant_id) VALUES  ('Boguslawa.Bogata@wp.pl','Bogusława','Bogata','rich_bogna','veorrS3TzjgPXxqBTy8wS+8BJCjv9rMGrW4jeWfbtOI=','UserRole', (SELECT id FROM Participants WHERE mainKNR='60000002'));
 
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('95600000010000000000000001',20110,0);
+INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('95600000010000000000000001',2000110,0);
 INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('68600000010000000000000002',99999999.12,1000);
 INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('41600000010000000000000003',2000,0);
 INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('14600000010000000000000004',3000,0);

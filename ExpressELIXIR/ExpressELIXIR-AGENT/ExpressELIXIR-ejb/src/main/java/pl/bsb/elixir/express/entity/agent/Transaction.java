@@ -114,7 +114,7 @@ public class Transaction implements Serializable {
 
     @Override
     public String toString() {
-        return "TransactionId : ".concat(this.transactionId);
+        return "Transaction Id - ".concat(this.transactionId);
     }
 
   public String getSenderIban() {

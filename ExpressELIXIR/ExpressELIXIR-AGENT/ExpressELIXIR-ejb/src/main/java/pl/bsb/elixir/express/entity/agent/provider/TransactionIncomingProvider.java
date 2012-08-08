@@ -32,6 +32,7 @@ public class TransactionIncomingProvider extends Provider<TransactionIncoming,Ba
     Query queryTransactionIncomingById = this.getEntityManager().createNamedQuery("findTransactionIncomingById");
     queryTransactionIncomingById.setParameter("transactionId", transactionId);
     try {
+        //TODO może zwracać non unique exception nie wiadomo czemu
       return (TransactionIncoming) queryTransactionIncomingById.getSingleResult();
     } catch (NoResultException ex) {
       logger.info("Cant find transaction by transactionId : ".concat(transactionId));

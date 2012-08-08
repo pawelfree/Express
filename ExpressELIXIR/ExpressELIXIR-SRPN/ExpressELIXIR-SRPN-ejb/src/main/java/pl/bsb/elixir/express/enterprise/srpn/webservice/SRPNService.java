@@ -39,7 +39,7 @@ public class SRPNService {
    */
   public iso.std.iso._20022.tech.xsd.pacs_002_001.Document sendTransfer(iso.std.iso._20022.tech.xsd.pacs_008_001.Document document) throws pl.com.kir.srpn.soap.Fault {
 
-    logger.log(Level.FINE, "Starting to service new request : {0}", document.getFIToFICstmrCdtTrf().getGrpHdr().getMsgId());
+    logger.log(Level.INFO, "SRPN starting to service new request : {0}", document.getFIToFICstmrCdtTrf().getGrpHdr().getMsgId());
 
     iso.std.iso._20022.tech.xsd.pacs_002_001.Document response = null;
 
@@ -53,12 +53,15 @@ public class SRPNService {
       TransactionIndividualStatus3Code responseStatus;
       //TODO jest losowo a powinna byc weryfikacja
       //TODO mozna odrzucac bledne KNRY
+/*      
       long i = System.currentTimeMillis();
       if (i % 3 == 0) {
         responseStatus = TransactionIndividualStatus3Code.RJCT;
       } else {
         responseStatus = TransactionIndividualStatus3Code.ACSP;
       }
+*/      
+      responseStatus = TransactionIndividualStatus3Code.ACSP;
       //TODO odpowiedz z wygenerowanym wyżej statusem
       response = ResponseDocumentCreator.createSendTransferResponse(document.getFIToFICstmrCdtTrf(), responseStatus);
       transaction.setStatus(SRPNInternalStatus.fromValue(responseStatus.name()));

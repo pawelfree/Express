@@ -4,12 +4,12 @@ import iso.std.iso._20022.tech.xsd.pacs_002_001.TransactionIndividualStatus3Code
 import iso.std.iso._20022.tech.xsd.pacs_008_001.Document;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.enterprise.srpn.interfaces.ISRPNProcessor;
 import pl.bsb.elixir.express.enterprise.srpn.interfaces.ISRPNSender;
 import pl.bsb.elixir.express.entity.srpn.SRPNInternalStatus;
@@ -28,7 +28,7 @@ public class SRPNProcessor implements ISRPNProcessor {
   
   //TODO !!!! messageId tworzy automatycznie dokument Long.toString(System.currentTimeMillis())
 
-  private static final Logger logger = Logger.getLogger(SRPNProcessor.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger(SRPNProcessor.class);  
   private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
   //TODO tak sobie wymyśliłem
   private static final int RETRY_COUNTER = 3;
@@ -43,10 +43,10 @@ public class SRPNProcessor implements ISRPNProcessor {
   @Override
   @Asynchronous
   public void processTransfer(Document sendTransferDocument, SRPNTransaction transaction) {
-    logger.log(Level.INFO, "Asynchronous transfer processing");
+    logger.info("SRPN asynchronous transfer processing. Transaction id - ".concat(transaction.getTransactionId()));
     TransactionIndividualStatus3Code response = authorizeTransfer(sendTransferDocument, transaction);
     if ((response == null) || (response == TransactionIndividualStatus3Code.RJCT)) {
-      logger.log(Level.WARNING, "Cant authorize transaction "
+      logger.warn("Cant authorize transaction "
               .concat(transaction.getTransactionId()));
       //odrzucona
       //TODO dla zabawy asynchroniczna
@@ -62,7 +62,7 @@ public class SRPNProcessor implements ISRPNProcessor {
 
   @Asynchronous
   private void acknowledgeDebit(Document sendTransferDocument, SRPNTransaction transaction) {
-    logger.log(Level.INFO, "SRPN started to acknowledge debit "
+    logger.info("SRPN started to acknowledge debit "
             .concat(transaction.getTransactionId())
             .concat(" at ")
             .concat(simpleDateFormat.format(Calendar.getInstance().getTime())));
@@ -76,7 +76,7 @@ public class SRPNProcessor implements ISRPNProcessor {
       if (response == null) {
         i++;
         transactionHelper.updateTransaction(transaction);
-        logger.log(Level.WARNING, "Cant acknowledge debit because of some technical reason. Consult log for more information.");
+        logger.warn("Cant acknowledge debit because of some technical reason. Consult log for more information.");
       } else {
         break;
       }
@@ -85,8 +85,7 @@ public class SRPNProcessor implements ISRPNProcessor {
       return;
     }
     TransactionIndividualStatus3Code responseStatus = response.getFIToFIPmtStsRpt().getTxInfAndSts().getTxSts();
-    logger.log(Level.INFO,
-            "Transaction : "
+    logger.info("SRPN Transaction : "
             .concat(response.getFIToFIPmtStsRpt().getTxInfAndSts().getOrgnlTxId())
             .concat(" acknowledge debit status : ")
             .concat(responseStatus.value()));
@@ -109,7 +108,7 @@ public class SRPNProcessor implements ISRPNProcessor {
 
   @Asynchronous
   public void acknowledgeCredit(Document sendTransferDocument, SRPNTransaction transaction) {
-    logger.log(Level.INFO, "SRPN started to acknowledge credit "
+    logger.info("SRPN started to acknowledge credit "
             .concat(transaction.getTransactionId())
             .concat(" at ")
             .concat(simpleDateFormat.format(Calendar.getInstance().getTime())));
@@ -124,7 +123,7 @@ public class SRPNProcessor implements ISRPNProcessor {
       if (response == null) {
         i++;
         transactionHelper.updateTransaction(transaction);
-        logger.log(Level.WARNING, "Cant acknowledge credit because of some technical reason. Consult log for more information.");
+        logger.warn("Cant acknowledge credit because of some technical reason. Consult log for more information.");
       } else {
         break;
       }
@@ -133,8 +132,7 @@ public class SRPNProcessor implements ISRPNProcessor {
       return;
     }
     TransactionIndividualStatus3Code responseStatus = response.getFIToFIPmtStsRpt().getTxInfAndSts().getTxSts();
-    logger.log(Level.INFO,
-            "Transaction : "
+    logger.info("SRPN Transaction : "
             .concat(response.getFIToFIPmtStsRpt().getTxInfAndSts().getOrgnlTxId())
             .concat(" acknowledge credit status : ")
             .concat(responseStatus.value()));
@@ -157,7 +155,7 @@ public class SRPNProcessor implements ISRPNProcessor {
 
   @Asynchronous
   private void rejectTransfer(Document sendTransferDocument, SRPNTransaction transaction) {
-    logger.log(Level.INFO, "SRPN started to reject transaction "
+    logger.info("SRPN started to reject transaction "
             .concat(transaction.getTransactionId())
             .concat(" at ")
             .concat(simpleDateFormat.format(Calendar.getInstance().getTime())));
@@ -174,7 +172,7 @@ public class SRPNProcessor implements ISRPNProcessor {
       if (response == null) {
         i++;
         transactionHelper.updateTransaction(transaction);
-        logger.log(Level.WARNING, "Cant reject transaction because of some technical reason. Consult log for more information.");
+        logger.warn("Cant reject transaction because of some technical reason. Consult log for more information.");
       } else {
         break;
       }
@@ -184,7 +182,7 @@ public class SRPNProcessor implements ISRPNProcessor {
     }
     //TODO zapisz odpowiedz i coś z nią zrób
     TransactionIndividualStatus3Code responseStatus = response.getFIToFIPmtStsRpt().getTxInfAndSts().getTxSts();
-    logger.log(Level.INFO, "Reject transaction id : "
+    logger.info("SRPN Reject transaction id : "
             .concat(response.getFIToFIPmtStsRpt().getTxInfAndSts().getOrgnlTxId())
             .concat(", status : ")
             .concat(responseStatus.value()));
@@ -204,7 +202,7 @@ public class SRPNProcessor implements ISRPNProcessor {
   }
 
   private TransactionIndividualStatus3Code authorizeTransfer(Document sendTransferDocument, SRPNTransaction transaction) {
-    logger.log(Level.INFO, "SRPN started to authorize transaction "
+    logger.info("SRPN started to authorize transaction "
             .concat(transaction.getTransactionId())
             .concat(" at ")
             .concat(simpleDateFormat.format(Calendar.getInstance().getTime())));
@@ -219,7 +217,7 @@ public class SRPNProcessor implements ISRPNProcessor {
       if (response == null) {
         i++;
         transactionHelper.updateTransaction(transaction);
-        logger.log(Level.WARNING, "Cant authorize transaction because of some technical reason. Consult log for more information.");
+        logger.warn("Cant authorize transaction because of some technical reason. Consult log for more information.");
       } else {
         break;
       }
@@ -228,8 +226,7 @@ public class SRPNProcessor implements ISRPNProcessor {
       return null;
     }
     TransactionIndividualStatus3Code responseStatus = response.getFIToFIPmtStsRpt().getTxInfAndSts().getTxSts();
-    logger.log(Level.INFO,
-            "Transaction : "
+    logger.info("SRPN Transaction : "
             .concat(response.getFIToFIPmtStsRpt().getTxInfAndSts().getOrgnlTxId())
             .concat(" authorization status : ")
             .concat(responseStatus.value()));
