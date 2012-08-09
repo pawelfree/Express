@@ -8,9 +8,22 @@ import java.util.List;
  */
 public class AgentAvailability {
 
-    private List branches;
-    private List sats;
-    private List satr;
+    /**
+     * Lista z elementami reprezentującymi Jednostki Uczestnika
+     */
+    private List<Branch> branches;
+    
+    /**
+     * Lista z elementami Statycznej Tabeli Dostępności 
+     * do nadawania Zleceń Płatności Jednostki Uczestnika
+     */
+    private List staticAvailabilityTableSending;
+    
+    /**
+     * Lista z elementami Statycznej Tabeli Dostępności 
+     * do odbierania Zleceń Płatności Jednostki Uczestnika
+     */
+    private List staticAvailabilityTableReceiving;
 
     /**
      * @return the branches
@@ -30,27 +43,27 @@ public class AgentAvailability {
      * @return the StaticAvilabilityTableSending
      */
     public List getSats() {
-        return sats;
+        return staticAvailabilityTableSending;
     }
 
     /**
      * @param sats the StaticAvilabilityTableSending to set
      */
     public void setSats(List sats) {
-        this.sats = sats;
+        this.staticAvailabilityTableSending = sats;
     }
 
     /**
      * @return the StaticAvilabilityTableReceiving
      */
     public List getSatr() {
-        return satr;
+        return staticAvailabilityTableReceiving;
     }
 
     /**
      * @param satr the StaticAvilabilityTableReceiving to set
      */
     public void setSatr(List satr) {
-        this.satr = satr;
+        this.staticAvailabilityTableReceiving = satr;
     }
 }

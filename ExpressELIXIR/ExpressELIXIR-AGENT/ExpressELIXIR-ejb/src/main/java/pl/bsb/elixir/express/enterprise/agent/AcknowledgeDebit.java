@@ -2,6 +2,7 @@ package pl.bsb.elixir.express.enterprise.agent;
 
 import iso.std.iso._20022.tech.xsd.pacs_002_001.Document;
 import iso.std.iso._20022.tech.xsd.pacs_002_001.TransactionIndividualStatus3Code;
+import iso.std.iso._20022.tech.xsd.pacs_008_001.FIToFICustomerCreditTransferV02;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.IAcknowledgeDebit;
 import pl.bsb.elixir.express.entity.agent.InternalStatus;
+import pl.bsb.elixir.express.entity.agent.Money;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
 import pl.bsb.elixir.express.util.ExternalStatusReason1Code;
@@ -21,52 +23,74 @@ import pl.bsb.elixir.express.util.ResponseDocumentCreator;
 @Stateless
 @Local
 public class AcknowledgeDebit implements IAcknowledgeDebit {
-  
-  private static final Logger logger = LoggerFactory.getLogger(AcknowledgeDebit.class);
-  private static final long serialVersionUID = 17L;
-  
-  @EJB
-  TransactionOutgoingProvider transactionOutgoingProvider;
 
-  //TODO słownik mainKNR - KNRy
-  //TODO sprawdzać czy komunikat jest właściwy - chyba po rodzaju operacji do wykonania
-  
-  
-  @Override
-  public Document process(iso.std.iso._20022.tech.xsd.pacs_008_001.Document document) {
-    Document response;
-    String transactionId = document.getFIToFICstmrCdtTrf().getCdtTrfTxInf().getPmtId().getTxId();
-    TransactionOutgoing transactionOutgoing = transactionOutgoingProvider.getTransactionById(transactionId);
-    //TODO czy sprawdzać ujemne saldo??
-    if ((transactionOutgoing != null) && (transactionOutgoing.getStatus().equals(InternalStatus.ACCEPTED))) {
-      transactionOutgoing.setStatus(InternalStatus.ACKNOWLEDGE_DEBIT);
-      transactionOutgoing.debitAndReleaseBlockade(transactionOutgoing.getTransactionAmount());
-      //TODO sprawdzać czy kwota w transakcji jest taka sama jak kwota w komunikacie uznania rachunku
-      response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(document.getFIToFICstmrCdtTrf(), TransactionIndividualStatus3Code.ACSC); 
-      transactionOutgoing.setStatus(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED);
-      logger.info("Account "
-              .concat(transactionOutgoing.getSenderAccount().getFormattedAccountNumber())
-              .concat(" debited with amount ")
-              .concat(transactionOutgoing.getTransactionAmount().getAmount().toString()));      
-    } else {
-      if (transactionOutgoing == null) {
-      logger.warn("Cant find transaction with id : "
-              .concat(transactionId)
-              .concat(" to acknowledge debit."));        
-      } else {
-        logger.warn("Transaction with id : "
-                .concat(transactionId)
-                .concat(" found but it has ")
-                .concat(transactionOutgoing.getStatus().value())
-                .concat(" status, but should have staus of ")
-                .concat(InternalStatus.ACCEPTED.value()));         
-      }
-      response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(
-              ExternalStatusReason1Code.FF01,
-              document.getFIToFICstmrCdtTrf(),
-              TransactionIndividualStatus3Code.RJCT); 
+    private static final Logger logger = LoggerFactory.getLogger(AcknowledgeDebit.class);
+    private static final long serialVersionUID = 17L;
+    @EJB
+    TransactionOutgoingProvider transactionOutgoingProvider;
+
+    //TODO słownik mainKNR - KNRy
+    //TODO sprawdzać czy komunikat jest właściwy - chyba po rodzaju operacji do wykonania
+    @Override
+    public Document process(iso.std.iso._20022.tech.xsd.pacs_008_001.Document document) {
+        Document response;
+
+        FIToFICustomerCreditTransferV02 transfer = document.getFIToFICstmrCdtTrf();
+        String transactionId = transfer.getCdtTrfTxInf().getPmtId().getTxId();
+
+        TransactionOutgoing transactionOutgoing = transactionOutgoingProvider.getTransactionById(transactionId);
+
+        if (isTransactionValidToDebit(transactionOutgoing, transactionId, transfer)) {
+
+            if (transactionOutgoing.getStatus().equals(InternalStatus.ACCEPTED)) {
+                //przelew nie został jeszcze zrealizowany
+                transactionOutgoing.debit(transactionOutgoing.getTransactionAmount());
+                logger.info("Account ".concat(transactionOutgoing.getSenderAccount().getFormattedAccountNumber())
+                        .concat(" debited with amount ")
+                        .concat(transactionOutgoing.getTransactionAmount().getAmount().toString()));
+
+            } else if (transactionOutgoing.getStatus().equals(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED)) {
+                //przelew został zrealizowany wobec czego mamy do czynienia z duplikatem
+                logger.warn("Duplicate transaction found - transaction id : ".concat(transactionId)
+                        .concat(" Original transaction status ").concat(transactionOutgoing.getStatus().toString()));
+            }
+            response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(transfer, TransactionIndividualStatus3Code.ACSC);
+        } else {
+            response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(ExternalStatusReason1Code.FF01,
+                    document.getFIToFICstmrCdtTrf(), TransactionIndividualStatus3Code.RJCT);
+        }
+        return response;
     }
-    return response;
-  }
 
+    private boolean isTransactionValidToDebit(TransactionOutgoing transactionOutgoing,
+            String transactionId,
+            FIToFICustomerCreditTransferV02 transfer) {
+        boolean result = true;
+        if (transactionOutgoing == null) {
+            result = false;
+            logger.warn("Cant find transaction with id : ".concat(transactionId).concat(" to acknowledge debit."));
+        } else {
+            InternalStatus status = transactionOutgoing.getStatus();
+            if ((!status.equals(InternalStatus.ACCEPTED)) && (!status.equals(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED))) {
+                result = false;
+                logger.warn("Transaction with id : ".concat(transactionId).concat(" found but it has ")
+                        .concat(status.value()).concat(" status, but should have staus of ")
+                        .concat(InternalStatus.ACCEPTED.value()).concat(" or ")
+                        .concat(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED.value()).concat(" (for duplicate)"));
+            } else if (status.equals(InternalStatus.ACCEPTED)) {
+                Money transactionExpectedAmount = transactionOutgoing.getTransactionAmount();
+                Money transactionDebitAmount = new Money(transfer.getCdtTrfTxInf().getInstdAmt().getValue());
+                if (transactionExpectedAmount.compareTo(transactionDebitAmount) != 0) {
+                    //rózna kwota w zleceniu przelewu od tej w (tym) żadaniu obciążenia rachunku
+                    result = false;
+                    logger.warn("Cant acknowledge debit for transaction with id : ".concat(transactionId)
+                            .concat(" Ordered amount ").concat(transactionOutgoing.getTransactionAmount().toString())
+                            .concat(" but expectet to debit ")
+                            .concat(transfer.getCdtTrfTxInf().getInstdAmt().getValue().toString()));
+                }
+            }
+        }
+
+        return result;
+    }
 }

@@ -28,6 +28,8 @@ public class AcknowledgeCredit implements IAcknowledgeCredit {
   @EJB
   TransactionIncomingProvider transactionIncomingProvider;
 
+  //TODO obsługa powtórnego przysłania żądania uznania rachunku
+  
   @Override
   public Document process(iso.std.iso._20022.tech.xsd.pacs_008_001.Document document) {
     Document response;
@@ -38,7 +40,6 @@ public class AcknowledgeCredit implements IAcknowledgeCredit {
       transactionIncoming.credit(transactionIncoming.getTransactionAmount());
       //TODO sprawdzać czy kwota w transakcji jest taka sama jak kwota w komunikacie uznania rachunku
       response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(document.getFIToFICstmrCdtTrf(), TransactionIndividualStatus3Code.ACSC);
-      transactionIncoming.setStatus(InternalStatus.ACKNOWLEDGE_CREDIT_ACCEPTED);
       logger.info("Account "
               .concat(transactionIncoming.getReceiverAccount().getFormattedAccountNumber())
               .concat(" credited with amount ")

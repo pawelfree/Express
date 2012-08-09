@@ -48,9 +48,10 @@ public class TransactionOutgoing extends Transaction {
         setReceiverIban(receiverIBAN);
     }
     
-    public Account debitAndReleaseBlockade(Money amount) {
+    public Account debit(Money amount) {
       senderAccount.debit(amount);
       releaseBlockade(amount);
+      setStatus(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED);
       return senderAccount;
     }
     

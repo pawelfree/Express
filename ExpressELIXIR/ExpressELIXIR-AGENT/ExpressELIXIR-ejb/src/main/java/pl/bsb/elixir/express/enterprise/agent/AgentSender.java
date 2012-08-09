@@ -25,7 +25,6 @@ public class AgentSender implements IAgentSender {
 
   @WebServiceRef(wsdlLocation= "/META-INF/wsdl/SRPNService.wsdl")
   SRPNService_Service srpnService;
-
    
   @Override
   @Interceptors(SendTransferInterceptor.class)

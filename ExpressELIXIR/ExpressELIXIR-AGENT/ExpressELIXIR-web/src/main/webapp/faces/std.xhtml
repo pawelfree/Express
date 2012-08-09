@@ -23,11 +23,14 @@
                 <p:layout id="mainlayout"  style="width: 880px; height: 500px">
                     <p:layoutUnit id="center" visible="true" position="center" >
                         <h:form id="stdForm">             
-                            <p:dataTable id="std" var="std" value="#{statyczneTabeleDostepnosciBean.std}"
-                                         selection="#{transactionTable.selectedStatement}"
-                       selectionMode="single">
+                            <p:contextMenu for="std">  
+                                <p:menuitem value="Szczegóły" icon="ui-icon-search" oncomplete="agentAvailabilityDialog.show()"/>  
+                            </p:contextMenu>  
 
-                                
+                            <p:dataTable id="std" var="std" value="#{statyczneTabeleDostepnosciBean.std}"
+                                         selection="#{statyczneTabeleDostepnosciBean.selectedStd}"
+                                         selectionMode="single"
+                            >
                                 <p:ajax event="rowDblselect" oncomplete="agentAvailabilityDialog.show()" />
                                 
                                 <p:column id="modelHeader">  
@@ -89,4 +92,3 @@
         </h:body>
     </f:view>
 </html>
-

@@ -91,7 +91,7 @@ public class Money implements Serializable {
     this.amount = amount;
     this.currency = "PLN";
   }
-
+  
   /**
    *
    * @return
