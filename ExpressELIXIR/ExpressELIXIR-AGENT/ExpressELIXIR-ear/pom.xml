@@ -48,7 +48,9 @@
                 <ejbModule>
                     <groupId>pl.bsb.elixir.express</groupId>
                     <artifactId>ExpressELIXIR-ejb</artifactId>
-                    <unpack>${env.unpack.modules}</unpack>							
+                    <unpack>false</unpack>	
+                    <!-- obejscie niepoprawnego rozwiazywania położenia plików zasobów - wsdl -->
+                    <bundleFileName>ExpressELIXIR-ejb.jar</bundleFileName>
                 </ejbModule>
             </modules>
         </configuration>

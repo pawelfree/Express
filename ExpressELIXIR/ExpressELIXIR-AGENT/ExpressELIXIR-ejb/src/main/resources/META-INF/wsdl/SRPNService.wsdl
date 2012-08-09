@@ -68,7 +68,7 @@
 	</wsdl:binding>
 	<wsdl:service name="SRPNService">
 		<wsdl:port name="SRPNServicePort" binding="tns:SRPNServiceSoapBinding">
-			<soap:address location="http://localhost:9090/SRPNServicePort" />
+			<soap:address location="http://localhost:8080/SRPNService/SRPNService" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

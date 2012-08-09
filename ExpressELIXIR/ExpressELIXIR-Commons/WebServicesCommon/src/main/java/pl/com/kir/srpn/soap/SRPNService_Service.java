@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "SRPNService", targetNamespace = "http://soap.srpn.kir.com.pl/", wsdlLocation = "file:/D:/zabawy/netbeansprojects/ExpressELIXIR/src/wsdl/SRPNService.wsdl")
+@WebServiceClient(name = "SRPNService", targetNamespace = "http://soap.srpn.kir.com.pl/")
 public class SRPNService_Service
     extends Service
 {
