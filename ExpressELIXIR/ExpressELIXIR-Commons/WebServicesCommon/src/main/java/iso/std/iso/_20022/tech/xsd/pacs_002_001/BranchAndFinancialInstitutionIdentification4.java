@@ -72,7 +72,6 @@ public class BranchAndFinancialInstitutionIdentification4 {
     
     @Override
     public BranchAndFinancialInstitutionIdentification4 clone() {
-        //TODO a może jako new String(this.getFinInstnId().getOthr().getId())
         return BranchAndFinancialInstitutionIdentification4.instance(this.getFinInstnId().getOthr().getId());
     }    
     

@@ -26,7 +26,6 @@ public class SendTransfer implements ISendTransfer {
 
     private static final Logger logger = LoggerFactory.getLogger(SendTransfer.class);
     private static final long serialVersionUID = 4L;
-    //TODO do i need to initialize them?
     @EJB
     TransactionOutgoingProvider transactionOutgoingProvider;
     @EJB
@@ -66,7 +65,6 @@ public class SendTransfer implements ISendTransfer {
             logger.warn("Unknown sending error. Empty response");
             return result;
         }
-        //TODO odpowiednia akcja w zaleznosci od odpowiedzi
         switch (response.getFIToFIPmtStsRpt().getTxInfAndSts().getTxSts()) {
             case ACSP: //PRZYJETY
                 transactionOutgoing.setStatus(InternalStatus.ACCEPTED);
