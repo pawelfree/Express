@@ -11,7 +11,6 @@ import pl.bsb.elixir.express.entity.agent.InternalStatus;
  *
  * @author paweld
  */
-//TODO interceptor musi dopuszczac nule jesli wywali sie funkcja w srodku
 public class AcknowledgeCreditInterceptor extends StatementInterceptorHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(AcknowledgeCreditInterceptor.class);
