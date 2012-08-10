@@ -60,6 +60,35 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.5.8.201207111220</version>
+                <executions> 
+                    <execution> 
+                        <goals> 
+                            <goal>prepare-agent</goal> 
+                        </goals> 
+                        <configuration>
+                            <includes>
+                                <include>*/pl/bsb/*</include>
+                            </includes>
+                        </configuration>
+                    </execution> 
+                    <execution> 
+                        <id>report</id> 
+                        <phase>prepare-package</phase> 
+                        <goals> 
+                            <goal>report</goal> 
+                        </goals> 
+                        <configuration>
+                            <excludes>
+                                <exclude>**/ExpressELIXIR-ear/*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution> 
+                </executions>                          
+            </plugin>               
         </plugins>
     </build>
     <modules>

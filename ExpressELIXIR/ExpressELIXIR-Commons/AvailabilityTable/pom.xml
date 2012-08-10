@@ -1,13 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>pl.bsb.elixir.express</groupId>
-  <artifactId>AvailabilityTable</artifactId>
-  <version>1.0</version>
-  <packaging>jar</packaging>
-  <name>AvailabilityTable</name>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>pl.bsb.elixir.express</groupId>
+    <artifactId>AvailabilityTable</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+    <name>AvailabilityTable</name>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.5.8.201207111220</version>
+                <executions> 
+                    <execution> 
+                        <goals> 
+                            <goal>prepare-agent</goal> 
+                        </goals> 
+                        <configuration>
+                            <includes>
+                                <include>*/pl/bsb/*</include>
+                            </includes>
+                        </configuration>
+                    </execution> 
+                    <execution> 
+                        <id>report</id> 
+                        <phase>prepare-package</phase> 
+                        <goals> 
+                            <goal>report</goal> 
+                        </goals> 
+                    </execution> 
+                </executions>                
+            </plugin>              
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -17,6 +41,25 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.5.8.201207111220</version>
+                <executions> 
+                    <execution> 
+                        <goals> 
+                            <goal>prepare-agent</goal> 
+                        </goals> 
+                    </execution> 
+                    <execution> 
+                        <id>report</id> 
+                        <phase>prepare-package</phase> 
+                        <goals> 
+                            <goal>report</goal> 
+                        </goals> 
+                    </execution> 
+                </executions>                
+            </plugin>               
         </plugins>
     </build>
     <repositories>
@@ -35,7 +78,7 @@
         </dependency>
     </dependencies>
     <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
   
 </project>

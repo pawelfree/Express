@@ -14,6 +14,7 @@ import pl.bsb.elixir.express.entity.agent.Money;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
 import pl.bsb.elixir.express.util.ExternalStatusReason1Code;
+import pl.bsb.elixir.express.util.Instruction;
 import pl.bsb.elixir.express.util.ResponseDocumentCreator;
 
 /**
@@ -28,9 +29,13 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
     private static final long serialVersionUID = 17L;
     @EJB
     TransactionOutgoingProvider transactionOutgoingProvider;
+    
+    //test only
+    void setTransactionOutgoingProvider(TransactionOutgoingProvider transactionOutgoingProvider) {
+        this.transactionOutgoingProvider = transactionOutgoingProvider;
+    }
 
     //TODO słownik mainKNR - KNRy
-    //TODO sprawdzać czy komunikat jest właściwy - chyba po rodzaju operacji do wykonania
     @Override
     public Document process(iso.std.iso._20022.tech.xsd.pacs_008_001.Document document) {
         Document response;
@@ -49,7 +54,7 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
                         .concat(" debited with amount ")
                         .concat(transactionOutgoing.getTransactionAmount().getAmount().toString()));
 
-            } else if (transactionOutgoing.getStatus().equals(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED)) {
+            } else { //if (transactionOutgoing.getStatus().equals(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED)) {
                 //przelew został zrealizowany wobec czego mamy do czynienia z duplikatem
                 logger.warn("Duplicate transaction found - transaction id : ".concat(transactionId)
                         .concat(" Original transaction status ").concat(transactionOutgoing.getStatus().toString()));
@@ -66,11 +71,18 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
             String transactionId,
             FIToFICustomerCreditTransferV02 transfer) {
         boolean result = true;
-        if (transactionOutgoing == null) {
+        if (!transfer.getCdtTrfTxInf().getPmtId().getInstrId().equalsIgnoreCase(Instruction.ackDebt.toString())) {
+            //weryfikacja kodu instrukcji
+            result = false;
+            logger.warn("Expected instruction is ".concat(Instruction.ackDebt.toString())
+                    .concat(" but received is ").concat(transfer.getCdtTrfTxInf().getPmtId().getInstrId()));
+        } else if (transactionOutgoing == null) {
+            //weryfikacja czy obciążenie dotyczy wcześniej zapoczątkowanego przelewu
             result = false;
             logger.warn("Cant find transaction with id : ".concat(transactionId).concat(" to acknowledge debit."));
         } else {
             InternalStatus status = transactionOutgoing.getStatus();
+            //weryfikacja czy status transakcji jest odpowiedni aby wykonać obciążenie
             if ((!status.equals(InternalStatus.ACCEPTED)) && (!status.equals(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED))) {
                 result = false;
                 logger.warn("Transaction with id : ".concat(transactionId).concat(" found but it has ")
@@ -80,8 +92,8 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
             } else if (status.equals(InternalStatus.ACCEPTED)) {
                 Money transactionExpectedAmount = transactionOutgoing.getTransactionAmount();
                 Money transactionDebitAmount = new Money(transfer.getCdtTrfTxInf().getInstdAmt().getValue());
+                //weryfikacja czy kwota w zleceniu przelewu jest taka sama jak w  (tym) żadaniu obciążenia rachunku
                 if (transactionExpectedAmount.compareTo(transactionDebitAmount) != 0) {
-                    //rózna kwota w zleceniu przelewu od tej w (tym) żadaniu obciążenia rachunku
                     result = false;
                     logger.warn("Cant acknowledge debit for transaction with id : ".concat(transactionId)
                             .concat(" Ordered amount ").concat(transactionOutgoing.getTransactionAmount().toString())

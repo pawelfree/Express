@@ -11,7 +11,7 @@ public class AgentAvailability {
     /**
      * Lista z elementami reprezentującymi Jednostki Uczestnika
      */
-    private List<Branch> branches;
+    private List branches;
     
     /**
      * Lista z elementami Statycznej Tabeli Dostępności 
