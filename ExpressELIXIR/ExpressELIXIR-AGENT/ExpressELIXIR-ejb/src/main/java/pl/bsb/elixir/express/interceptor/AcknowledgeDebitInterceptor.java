@@ -38,6 +38,7 @@ public class AcknowledgeDebitInterceptor extends StatementInterceptorHelper {
                 } else {
                     status = InternalStatus.ACKNOWLEDGE_DEBIT_REJECTED;
                 }
+                //TODO try bo to nie może wywalac oprogramowania
                 addStatement(acknowledgeDebitResponse, status);
             } else {
                 logger.error("Return from ".concat(ic.getMethod().getName()).concat(" is null"));

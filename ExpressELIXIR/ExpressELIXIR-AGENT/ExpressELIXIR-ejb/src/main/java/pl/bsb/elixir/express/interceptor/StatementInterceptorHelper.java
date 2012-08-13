@@ -1,6 +1,8 @@
 package pl.bsb.elixir.express.interceptor;
 
 import javax.ejb.EJB;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.entity.agent.InternalStatus;
@@ -62,7 +64,8 @@ public class StatementInterceptorHelper {
         try {
             statementProvider.add(new Statement(document, transactionId, messageId, status));
         } catch (Exception ex) {
-            logger.error("Cant save statement",ex);
+            logger.error("Cant save statement " + ex.getCause());
+                    
         }
     }
 }

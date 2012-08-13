@@ -12,6 +12,7 @@ import pl.bsb.elixir.express.enterprise.agent.interfaces.IAcknowledgeCredit;
 import pl.bsb.elixir.express.entity.agent.InternalStatus;
 import pl.bsb.elixir.express.entity.agent.Money;
 import pl.bsb.elixir.express.entity.agent.TransactionIncoming;
+import pl.bsb.elixir.express.entity.agent.provider.AccountProvider;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionIncomingProvider;
 import pl.bsb.elixir.express.util.ExternalStatusReason1Code;
 import pl.bsb.elixir.express.util.Instruction;
@@ -29,10 +30,17 @@ public class AcknowledgeCredit implements IAcknowledgeCredit {
     private static final long serialVersionUID = 16L;
     @EJB
     TransactionIncomingProvider transactionIncomingProvider;
+    @EJB
+    AccountProvider accountProvider;
 
     //test only
     void setTransactionIncomingProvider(TransactionIncomingProvider transactionIncomingProvider) {
         this.transactionIncomingProvider = transactionIncomingProvider;
+    }
+
+    //test only
+    void setAccountProvider(AccountProvider accountProvider) {
+        this.accountProvider = accountProvider;
     }
 
     //TODO obsługa powtórnego przysłania żądania uznania rachunku
@@ -49,7 +57,7 @@ public class AcknowledgeCredit implements IAcknowledgeCredit {
         if (isTransactionValidToCredit(transactionIncoming, transactionId, transfer)) {
             if (transactionIncoming.getStatus().equals(InternalStatus.AUTHORIZE_ACCEPTED)) {
                 //przelew nie został jeszcze zrealizowany
-                transactionIncoming.credit(transactionIncoming.getTransactionAmount());
+                accountProvider.creditTransaction(transactionIncoming);
                 logger.info("Account ".concat(transactionIncoming.getReceiverAccount().getFormattedAccountNumber())
                         .concat(" credited with amount ")
                         .concat(transactionIncoming.getTransactionAmount().getAmount().toString()));

@@ -41,8 +41,8 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
     void setTransactionOutgoingProvider(TransactionOutgoingProvider transactionOutgoingProvider) {
         this.transactionOutgoingProvider = transactionOutgoingProvider;
     }
-    //test only
 
+    //test only
     void setAccountProvider(AccountProvider accountProvider) {
         this.accountProvider = accountProvider;
     }
@@ -59,7 +59,6 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
 
             if (transactionOutgoing.getStatus().equals(InternalStatus.ACCEPTED)) {
                 //przelew nie został jeszcze zrealizowany
-                System.err.println("!!! debiting transction " + transactionId + " amount " + transactionOutgoing.getTransactionAmount());
                 accountProvider.debitTransaction(transactionOutgoing);
                 logger.info("Account ".concat(transactionOutgoing.getSenderAccount().getFormattedAccountNumber())
                         .concat(" debited with amount ")

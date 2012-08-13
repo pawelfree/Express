@@ -29,10 +29,4 @@ public class TransactionIncoming extends Transaction {
   public void setReceiverAccount(Account receiverAccount) {
     this.receiverAccount = receiverAccount;
   }
-  
-  public Account credit(Money amount) {
-    receiverAccount.credit(amount);
-    setStatus(InternalStatus.ACKNOWLEDGE_CREDIT_ACCEPTED);
-    return receiverAccount;
-  }
 }

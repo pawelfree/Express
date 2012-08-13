@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.entity.agent.Account;
 import pl.bsb.elixir.express.entity.agent.InternalStatus;
 import pl.bsb.elixir.express.entity.agent.Money;
+import pl.bsb.elixir.express.entity.agent.TransactionIncoming;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
 import pl.bsb.proELIX.common.utils.ReadPropertyFile;
 import pl.bsb.proELIX.common.utils.criteria.BaseSearchCriteria;
@@ -25,7 +26,7 @@ import pl.bsb.proELIX.common.utils.criteria.BaseSearchCriteria;
 public class AccountProvider extends Provider<Account, BaseSearchCriteria> {
 
     private static final long serialVersionUID = 16L;
-    private static final Logger logger = LoggerFactory.getLogger(ReadPropertyFile.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadPropertyFile.class);
 
     public AccountProvider() {
         super(Account.class);
@@ -43,78 +44,84 @@ public class AccountProvider extends Provider<Account, BaseSearchCriteria> {
         try {
             return (Account) queryAccountByIBAN.getSingleResult();
         } catch (NoResultException nre) {
-            logger.info("Cant find account : ".concat(iban));
+            LOGGER.info("Cant find account : ".concat(iban));
             return null;
         }
     }
 
-    //TODO optimistic lock  
-//    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-//    public void debitAndReleaseBlockade(Account account, Money amount) {
-//        try {
-//            account.debit(amount);
-//            account.subtractFromBlockedBalance(amount);
-//        } catch (Exception ex) {
-//            System.err.println("!!! debitAndRelease ".concat(account.getFormattedAccountNumber()).concat(" ") + ex.getClass() + "cause " + ex.getCause());
-//        }
-//    }
+    /**
+     * Dodaje kwotę do blokady na rachunku. Nie obsługuje wielowątkowego modyfikowania account.
+     * 
+     * @param account rachunek dla którego zwiększyć blokadę
+     * @param amount kwota o którą zwiększyć blokadę
+     */
+    public void addToBlockedBalance(Account account, Money amount) {
+        account = get(account.getId());
+        try {
+            account.addToBlockedBalance(amount);
+        } catch (OptimisticLockException ex) {
+            LOGGER.info("Cant add to blockade on account ".concat(account.getIban())
+                    .concat(" amount ").concat(amount.toString()), ex);
+        }
+    }
+
+    public void creditTransaction(TransactionIncoming transaction) {
+        try {
+            Account account = get(transaction.getReceiverAccount().getId());
+            creditTransactionInNewTransaction(account, transaction);
+        } catch (OptimisticLockException e) {
+            LOGGER.info("OptimisticLockException while crediting transaction "
+                    .concat(transaction.getTransactionId())
+                    .concat(" cause ") + e.getCause());
+        } catch (Exception ex) {
+            LOGGER.warn("Exception " + ex.getCause() + "while crediting amount for transaction"
+                    .concat(transaction.getTransactionId()).concat(" cause " )+ ex.getCause());
+        }
+    }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    //TODO optimistic lock
-    public void addToBlockedBalance(Account account, Money amount) {
-        try {
-            account = get(account.getId());
-            try {
-                account.addToBlockedBalance(amount);
-            } catch (OptimisticLockException ex) {
-                logger.info("Cant add to blockade on account ".concat(account.getIban())
-                        .concat(" amount ").concat(amount.toString()), ex);
-
-            }
-        } catch (Exception ex) {
-            System.err.println("!!! addToBlockade exception " + ex.getClass() + " cause " + ex.getCause());
-        }
+    private void creditTransactionInNewTransaction(Account account, TransactionIncoming transaction) {
+//        credit(account, transaction.getTransactionAmount());
+        account.credit(transaction.getTransactionAmount());
+        transaction.setStatus(InternalStatus.ACKNOWLEDGE_CREDIT_ACCEPTED);
+        getEntityManager().flush();
     }
 
     public void debitTransaction(TransactionOutgoing transaction) {
         try {
             Account account = get(transaction.getSenderAccount().getId());
             debitTransactionInNewTransaction(account, transaction);
- 
-        } catch (Exception e) {
-            System.err.println("!!! debit transaction ".concat(transaction.getTransactionId()).concat(" ") + e.getClass() + " cause " + e.getCause());
+        } catch (OptimisticLockException e) {
+            LOGGER.info("OptimisticLockException while debiting transaction "
+                    .concat(transaction.getTransactionId()).concat(" cause ") + e.getCause());
+        } catch (Exception ex) {
+            LOGGER.warn("Exception " + ex.getCause() + "while crediting amount for transaction"
+                    .concat(transaction.getTransactionId()).concat(" cause " )+ ex.getCause());
         }
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     private void debitTransactionInNewTransaction(Account account, TransactionOutgoing transaction) {
-        debit(account, transaction.getTransactionAmount());
+//        debit(account, transaction.getTransactionAmount());
+        account.debit(transaction.getTransactionAmount());
         releaseBlockade(account, transaction.getTransactionAmount());
-        //TODO pobrac wlasciwa + OptimisticLock
         transaction.setStatus(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED);
-                   getEntityManager().flush(); 
-
+        getEntityManager().flush();
     }
 
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Account releaseBlockade(Account account, Money amount) {
+    /**
+     * Zwalnia blokadę na rachunku o podaną kwotę
+     * 
+     * @param account rachunek którego blokadę należy zmniejszyć 
+     * @param amount kwota o którą należy zmniejszyć blokadę
+     */
+    //TODO optimistic lock
+    public void releaseBlockade(Account account, Money amount) {
         try {
             account.subtractFromBlockedBalance(amount);
         } catch (Exception ex) {
-            System.err.println("!!! release ".concat(account.getFormattedAccountNumber()).concat(" ") + ex.getClass() + " cause " + ex.getCause());
+            LOGGER.error("Release blockade for account".concat(account.getFormattedAccountNumber())
+                    .concat(" ") + ex.getClass() + " cause " + ex.getCause());
         }
-
-        return account;
-    }
-
-    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    //TODO optimistic lock
-    public Account debit(Account account, Money amount) {
-        try {
-            account.debit(amount);
-        } catch (Exception ex) {
-            System.err.println("!!! debit ".concat(account.getFormattedAccountNumber()).concat(" ") + ex.getClass() + " cause " + ex.getCause());
-        }
-        return account;
     }
 }
