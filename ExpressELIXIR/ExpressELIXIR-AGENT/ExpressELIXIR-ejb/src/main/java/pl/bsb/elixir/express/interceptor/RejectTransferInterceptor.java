@@ -43,7 +43,9 @@ public class RejectTransferInterceptor extends StatementInterceptorHelper {
                 logger.error("Return from ".concat(ic.getMethod().getName()).concat(" is null"));
             }
             return rejectTransferResponse;
-
+        } catch (Exception ex) {
+            System.err.println("!!! reject transfer interceptor To nie powinno sie przydażyć");  
+            throw ex;
         } finally {
         }
     }

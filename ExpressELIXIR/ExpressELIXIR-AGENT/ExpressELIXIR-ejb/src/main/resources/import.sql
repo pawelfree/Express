@@ -6,17 +6,17 @@ INSERT INTO users(email,firstName,lastName,login,password,roleName,participant_i
 INSERT INTO users(email,firstName,lastName,login,password,roleName,participant_id) VALUES  ('Zofia.Skąpa@wp.pl','Zofia','Skąpa','zoska12','veorrS3TzjgPXxqBTy8wS+8BJCjv9rMGrW4jeWfbtOI=','UserRole', (SELECT id FROM Participants WHERE mainKNR='60000001'));
 INSERT INTO users(email,firstName,lastName,login,password,roleName,participant_id) VALUES  ('Boguslawa.Bogata@wp.pl','Bogusława','Bogata','rich_bogna','veorrS3TzjgPXxqBTy8wS+8BJCjv9rMGrW4jeWfbtOI=','UserRole', (SELECT id FROM Participants WHERE mainKNR='60000002'));
 
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('95600000010000000000000001',2000110,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('68600000010000000000000002',99999999.12,1000);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('41600000010000000000000003',2000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('14600000010000000000000004',3000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('84600000010000000000000005',4000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('57600000010000000000000006',5000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('30600000010000000000000007',6000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('03600000010000000000000008',7000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('73600000010000000000000009',8000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('46600000010000000000000010',9000,0);
-INSERT INTO accounts(iban,balance,blockedBalance) VALUES ('70600000020000000000000001',1035,35);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'95600000010000000000000001',2000110,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'68600000010000000000000002',99999999.12,1000);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'41600000010000000000000003',2000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'14600000010000000000000004',3000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'84600000010000000000000005',4000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'57600000010000000000000006',5000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'30600000010000000000000007',6000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'03600000010000000000000008',7000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'73600000010000000000000009',8000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'46600000010000000000000010',9000,0);
+INSERT INTO accounts(version,iban,balance,blockedBalance) VALUES (1,'70600000020000000000000001',1035,35);
 
 INSERT INTO users_accounts(users_id,accounts_id) VALUES ((SELECT id FROM Users WHERE login='lenny'),(SELECT id FROM accounts WHERE iban='95600000010000000000000001'));
 INSERT INTO users_accounts(users_id,accounts_id) VALUES ((SELECT id FROM Users WHERE login='lenny'),(SELECT id FROM accounts WHERE iban='68600000010000000000000002'));

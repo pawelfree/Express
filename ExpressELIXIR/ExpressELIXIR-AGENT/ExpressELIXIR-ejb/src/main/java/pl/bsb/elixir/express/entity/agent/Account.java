@@ -13,6 +13,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import pl.bsb.proELIX.common.utils.StringUtil;
@@ -47,6 +48,9 @@ public class Account implements Serializable {
     @AttributeOverride(name = "amount", column =
     @Column(name = "blockedBalance"))})
   private Money blockedBalance;
+  
+  @Version
+  private Integer version;
 
   /**
    *

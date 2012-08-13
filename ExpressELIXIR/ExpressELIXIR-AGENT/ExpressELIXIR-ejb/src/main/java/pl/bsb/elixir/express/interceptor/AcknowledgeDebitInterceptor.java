@@ -14,7 +14,7 @@ import pl.bsb.elixir.express.entity.agent.InternalStatus;
 public class AcknowledgeDebitInterceptor extends StatementInterceptorHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(AcknowledgeDebitInterceptor.class);
-
+    
     @AroundInvoke
     private Object logStatement(final InvocationContext ic) throws Exception {
         logger.debug("acknowledge debit interceptor invoked on target {} and method {}",

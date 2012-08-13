@@ -44,12 +44,11 @@ public class SendTransfer implements ISendTransfer {
     
     @Override
     public void process(TransactionOutgoing transactionOutgoing) {
-        
-        boolean result = processTransaction(transactionOutgoing);
-        if (result) {
-            Account account = transactionOutgoing.getSenderAccount();
-            account.addToBlockedBalance(transactionOutgoing.getTransactionAmount());
-            accountProvider.update(account);
+        if (processTransaction(transactionOutgoing)) {
+            //TODO czy na pewno nie powinienem zablokować tego przed przygotowaniem odpowiedzi??
+            accountProvider.addToBlockedBalance(transactionOutgoing.getSenderAccount(), transactionOutgoing.getTransactionAmount());
+        } else {
+            //TODO rób nic?
         }
     }
 

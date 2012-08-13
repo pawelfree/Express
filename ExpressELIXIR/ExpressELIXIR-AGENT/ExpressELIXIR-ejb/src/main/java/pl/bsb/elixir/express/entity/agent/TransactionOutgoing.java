@@ -48,18 +48,6 @@ public class TransactionOutgoing extends Transaction {
         setReceiverIban(receiverIBAN);
     }
     
-    public Account debit(Money amount) {
-      senderAccount.debit(amount);
-      releaseBlockade(amount);
-      setStatus(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED);
-      return senderAccount;
-    }
-    
-    public Account releaseBlockade(Money amount) {
-      senderAccount.subtractFromBlockedBalance(amount);
-      return senderAccount;
-    }
-    
     public String getReceiverKNR() {
         if (getReceiverIban() == null) {
             return "";

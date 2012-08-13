@@ -43,7 +43,9 @@ public class AuthorizeTransferInterceptor extends StatementInterceptorHelper {
                 logger.error("Return from ".concat(ic.getMethod().getName()).concat(" is null"));
             }
             return authorizeTransferResponse;
-
+        } catch (Exception ex) {
+            System.err.println("!!! authorize transfer interceptor To nie powinno sie przydażyć");  
+            throw ex;
         } finally {
         }
     }

@@ -14,6 +14,7 @@ import pl.bsb.elixir.express.entity.agent.Account;
 import pl.bsb.elixir.express.entity.agent.InternalStatus;
 import pl.bsb.elixir.express.entity.agent.Money;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
+import pl.bsb.elixir.express.entity.agent.provider.AccountProvider;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
 import pl.bsb.elixir.express.util.CreditTransferV02DocumentCreator;
 import pl.bsb.elixir.express.util.Instruction;
@@ -27,12 +28,15 @@ public class AcknowledgeDebitTest {
 
     @Mock
     TransactionOutgoingProvider transactionOutgoingProvider;
+    @Mock
+    AccountProvider accountProvider;
+    @Mock
+    TransactionOutgoing transactionOutgoing;
+    
     AcknowledgeDebit acknowledgeDebit;
     static pl.com.kir.srpn.soap.SendTransfer sendTransferDocument = new pl.com.kir.srpn.soap.SendTransfer();
     static pl.com.kir.srpn.soap.AcknowledgeDebit acknowledgeDebitDocument = new pl.com.kir.srpn.soap.AcknowledgeDebit();
     static long transactionId;
-    @Mock
-    TransactionOutgoing transactionOutgoing;
 
     public AcknowledgeDebitTest() {
     }
@@ -41,6 +45,7 @@ public class AcknowledgeDebitTest {
     public void setUp() {
         acknowledgeDebit = new AcknowledgeDebit();
         acknowledgeDebit.setTransactionOutgoingProvider(transactionOutgoingProvider);
+        acknowledgeDebit.setAccountProvider(accountProvider);
         transactionId = System.currentTimeMillis();
         sendTransferDocument.setDocument(CreditTransferV02DocumentCreator.createSendTransferDocument(
                 TestData.KNR_1, String.valueOf(transactionId), BigDecimal.TEN,
@@ -95,7 +100,6 @@ public class AcknowledgeDebitTest {
         Mockito.when(transactionOutgoing.getStatus()).thenReturn(InternalStatus.ACCEPTED);
         Mockito.when(transactionOutgoing.getTransactionAmount()).thenReturn(new Money(BigDecimal.TEN));
         Mockito.when(transactionOutgoingProvider.getTransactionById(String.valueOf(transactionId))).thenReturn(transactionOutgoing);
-        Mockito.when(transactionOutgoing.debit(new Money(BigDecimal.TEN))).thenReturn(null);
         Account account = new Account();
         account.setIban(TestData.IBAN_1);
         Mockito.when(transactionOutgoing.getSenderAccount()).thenReturn(account);

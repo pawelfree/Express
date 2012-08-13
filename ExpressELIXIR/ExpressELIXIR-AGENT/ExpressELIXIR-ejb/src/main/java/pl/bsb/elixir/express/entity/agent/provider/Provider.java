@@ -26,4 +26,5 @@ public class Provider<T, C extends BaseSearchCriteria> extends DBTemplate<T, C> 
     }
     return em;
   }  
+  
 }

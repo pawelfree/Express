@@ -43,7 +43,9 @@ public class AcknowledgeCreditInterceptor extends StatementInterceptorHelper {
                 logger.error("Return from ".concat(ic.getMethod().getName()).concat(" is null"));
             }
             return acknowledgeCreditResponse;
+        } catch (Exception ex) {
+            System.err.println("!!! Credit interceptor To nie powinno sie przydażyć");  
+            throw ex;
         } finally {
-        }
-    }
+        }    }
 }

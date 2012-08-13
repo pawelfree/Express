@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.IRejectTransfer;
 import pl.bsb.elixir.express.entity.agent.InternalStatus;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
+import pl.bsb.elixir.express.entity.agent.provider.AccountProvider;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
 import pl.bsb.elixir.express.util.ExternalStatusReason1Code;
 import pl.bsb.elixir.express.util.ResponseDocumentCreator;
@@ -26,6 +27,8 @@ public class RejectTransfer implements IRejectTransfer {
   private static final long serialVersionUID = 17L;
   @EJB
   TransactionOutgoingProvider transactionOutgoingProvider;
+  @EJB
+  AccountProvider accountProvider;
 
   //TODO słownik mainKNR - KNRy
   //TODO zweryfikować czy obsługiwane są wszystkie przypadki błędów - dorobić szczegółowe statusy
@@ -37,7 +40,7 @@ public class RejectTransfer implements IRejectTransfer {
     TransactionOutgoing transactionOutgoing = transactionOutgoingProvider.getTransactionById(transactionId);
     if ((transactionOutgoing != null) && (transactionOutgoing.getStatus().equals(InternalStatus.ACCEPTED))) {
       transactionOutgoing.setStatus(InternalStatus.REJECT_TRANSFER);
-      transactionOutgoing.releaseBlockade(transactionOutgoing.getTransactionAmount());
+      accountProvider.releaseBlockade(transactionOutgoing.getSenderAccount(),transactionOutgoing.getTransactionAmount());
       response = ResponseDocumentCreator.createRejectTransferResponse(document.getPmtRtr(), TransactionIndividualStatus3Code.ACSC);
       transactionOutgoing.setStatus(InternalStatus.REJECT_TRANSFER_ACCEPTED);
     } else {
