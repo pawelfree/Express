@@ -38,7 +38,8 @@ public class SendTransferInterceptor extends StatementInterceptorHelper {
                 } else {
                     status = InternalStatus.REJECTED;
                 }
-                addStatement(sendTransferResponse, status);
+
+                addStatement(((iso.std.iso._20022.tech.xsd.pacs_008_001.Document) params[0]).getFIToFICstmrCdtTrf().getCdtTrfTxInf().getPmtId().getTxId(),sendTransferResponse, status);
             } else {
                 logger.error("Return from ".concat(ic.getMethod().getName()).concat(" is null"));
             }

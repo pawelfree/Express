@@ -125,7 +125,7 @@ public class TransactionTable implements Serializable {
             }
             //TODO błędy
             sendTransferProcessor.process(new TransactionOutgoing(
-                    Long.toString(uniqueTransactionId.next()),
+                    "000".concat(user.getParticipant().getMainKNR()).concat(Long.toString(uniqueTransactionId.next()).substring(1)),
                     account,
                     amount,
                     newTransaction.getReceiverIban(),

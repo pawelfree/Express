@@ -198,7 +198,7 @@
 	</wsdl:binding>
 	<wsdl:service name="AgentService">
 		<wsdl:port name="AgentServicePort" binding="tns:AgentServiceSoapBinding">
-			<soap:address location="http://localhost:9090/AgentServicePort" />
+			<soap:address location="https://fastelix.dev.bsb-dc.pl/AgentServicePort" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

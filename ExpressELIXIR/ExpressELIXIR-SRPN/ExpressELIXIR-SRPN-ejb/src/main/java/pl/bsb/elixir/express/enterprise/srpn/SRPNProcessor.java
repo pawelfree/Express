@@ -42,8 +42,7 @@ public class SRPNProcessor implements ISRPNProcessor {
         LOGGER.info("SRPN asynchronous transfer processing. Transaction id - ".concat(transaction.getTransactionId()));
         TransactionIndividualStatus3Code response = authorizeTransfer(sendTransferDocument, transaction);
         if ((response == null) || (response == TransactionIndividualStatus3Code.RJCT)) {
-            LOGGER.warning("Cant authorize transaction "
-                    .concat(transaction.getTransactionId()));
+            LOGGER.warning("Cant authorize transaction ".concat(transaction.getTransactionId()));
             //odrzucona
             //TODO dla zabawy asynchroniczna
             rejectTransfer(sendTransferDocument, transaction);

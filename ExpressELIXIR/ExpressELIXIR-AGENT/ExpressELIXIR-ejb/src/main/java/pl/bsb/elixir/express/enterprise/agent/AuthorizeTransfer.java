@@ -27,6 +27,7 @@ import pl.bsb.proELIX.common.utils.StringUtil;
  */
 @Stateless
 @Local
+//TODO przerobić jak AcknowledgeDebit z uwagi na optimisticlock jesli SRPN przyśle nawał
 public class AuthorizeTransfer implements IAuthorizeTransfer {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthorizeTransfer.class);

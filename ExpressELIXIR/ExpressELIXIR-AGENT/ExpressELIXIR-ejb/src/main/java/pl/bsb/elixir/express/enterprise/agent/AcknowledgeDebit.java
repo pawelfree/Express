@@ -4,12 +4,10 @@ import iso.std.iso._20022.tech.xsd.pacs_002_001.Document;
 import iso.std.iso._20022.tech.xsd.pacs_002_001.TransactionIndividualStatus3Code;
 import iso.std.iso._20022.tech.xsd.pacs_008_001.FIToFICustomerCreditTransferV02;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
+import javax.persistence.OptimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.IAcknowledgeDebit;
@@ -31,6 +29,7 @@ import pl.bsb.elixir.express.util.ResponseDocumentCreator;
 public class AcknowledgeDebit implements IAcknowledgeDebit {
 
     private static final Logger logger = LoggerFactory.getLogger(AcknowledgeDebit.class);
+    private static final int OPTIMISTIC_LOCK_RETRIES = 3;
     private static final long serialVersionUID = 17L;
     @EJB
     TransactionOutgoingProvider transactionOutgoingProvider;
@@ -47,6 +46,54 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
         this.accountProvider = accountProvider;
     }
 
+    private boolean debitTransaction(TransactionOutgoing transaction) {
+        boolean result = false;
+        for (int i = 0; i < OPTIMISTIC_LOCK_RETRIES; i++) {
+            try {
+                accountProvider.debitTransaction(transaction);
+                result = true;
+                logger.debug("Debited account for transaction "
+                        .concat(transaction.getTransactionId())
+                        .concat(" at attempt ")
+                        .concat(String.valueOf(i + 1)));
+                break;
+            } catch (Exception e) {
+                if (isOptimisticLockException(e)) {
+                    logger.info("Optimistic lock while debiting account for transaction "
+                            .concat(transaction.getTransactionId())
+                            .concat(", attempt ")
+                            .concat(String.valueOf(i + 1))
+                            .concat(", cause ") + e.getCause());
+                    continue;
+                } else {
+                    logger.error("Exception " + e.getClass() + " while debiting account for transaction "
+                            .concat(transaction.getTransactionId())
+                            .concat(", attempt ")
+                            .concat(String.valueOf(i + 1))
+                            .concat(", cause ") + e.getCause());
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean isOptimisticLockException(Exception exception) {
+        boolean result = false;
+        if (exception instanceof EJBException) {
+            Throwable  t = exception.getCause();
+            while(t != null ) {
+                if (t instanceof OptimisticLockException) {
+                    result = true;
+                    break;
+                } else {
+                    t = t.getCause();
+                }
+            }
+        } 
+        return result;
+    }
+
     @Override
     public Document process(iso.std.iso._20022.tech.xsd.pacs_008_001.Document document) {
         Document response;
@@ -54,25 +101,39 @@ public class AcknowledgeDebit implements IAcknowledgeDebit {
         FIToFICustomerCreditTransferV02 transfer = document.getFIToFICstmrCdtTrf();
         String transactionId = transfer.getCdtTrfTxInf().getPmtId().getTxId();
         TransactionOutgoing transactionOutgoing = transactionOutgoingProvider.getTransactionById(transactionId);
-
+        boolean result;
         if (isTransactionValidToDebit(transactionOutgoing, transactionId, transfer)) {
 
             if (transactionOutgoing.getStatus().equals(InternalStatus.ACCEPTED)) {
                 //przelew nie został jeszcze zrealizowany
-                accountProvider.debitTransaction(transactionOutgoing);
-                logger.info("Account ".concat(transactionOutgoing.getSenderAccount().getFormattedAccountNumber())
-                        .concat(" debited with amount ")
-                        .concat(transactionOutgoing.getTransactionAmount().getAmount().toString()));
-
+                if (debitTransaction(transactionOutgoing)) {
+                    logger.info("Account ".concat(transactionOutgoing.getSenderAccount().getFormattedAccountNumber())
+                            .concat(" debited with amount ")
+                            .concat(transactionOutgoing.getTransactionAmount().getAmount().toString()));
+                    result = true;
+                } else {
+                    logger.warn("Cant debit account "
+                            .concat(transactionOutgoing.getSenderAccount().getFormattedAccountNumber())
+                            .concat(" for transaction ").concat(transactionId)
+                            .concat(" Consult log for more information"));
+                    transactionOutgoing.setStatus(InternalStatus.ACKNOWLEDGE_DEBIT_REJECTED);
+                    result = false;
+                }
             } else { //if (transactionOutgoing.getStatus().equals(InternalStatus.ACKNOWLEDGE_DEBIT_ACCEPTED)) {
                 //przelew został zrealizowany wobec czego mamy do czynienia z duplikatem
                 logger.warn("Duplicate transaction found - transaction id : ".concat(transactionId)
                         .concat(" Original transaction status ").concat(transactionOutgoing.getStatus().toString()));
+                result = true;
             }
+        } else {
+            result = false;
+        }
+
+        if (result) {
             response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(transfer, TransactionIndividualStatus3Code.ACSC);
         } else {
             response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(ExternalStatusReason1Code.FF01,
-                    document.getFIToFICstmrCdtTrf(), TransactionIndividualStatus3Code.RJCT);
+                    transfer, TransactionIndividualStatus3Code.RJCT);
         }
         return response;
     }

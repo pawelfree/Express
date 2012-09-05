@@ -40,9 +40,10 @@ public class StatementInterceptorHelper {
      * @param document komunikat do zarejestrowania
      * @param status status komunikatu
      */
-    protected void addStatement(iso.std.iso._20022.tech.xsd.pacs_002_001.Document document, InternalStatus status) {
+    protected void addStatement(String transactionId, iso.std.iso._20022.tech.xsd.pacs_002_001.Document document, InternalStatus status) {
         addStatement(JAXBMarshaller.marshallToBase64(document),
-                document.getFIToFIPmtStsRpt().getTxInfAndSts().getOrgnlTxId(),
+                //document.getFIToFIPmtStsRpt().getTxInfAndSts().getOrgnlTxId(),
+                transactionId,
                 document.getFIToFIPmtStsRpt().getGrpHdr().getMsgId(),
                 status);
     }

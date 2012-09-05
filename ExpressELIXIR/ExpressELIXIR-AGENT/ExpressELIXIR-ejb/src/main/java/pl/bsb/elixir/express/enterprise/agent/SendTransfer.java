@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.IAgentSender;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.ISendTransfer;
-import pl.bsb.elixir.express.entity.agent.Account;
 import pl.bsb.elixir.express.entity.agent.InternalStatus;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
 import pl.bsb.elixir.express.entity.agent.provider.AccountProvider;

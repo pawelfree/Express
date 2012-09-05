@@ -11,8 +11,9 @@ import javax.jws.WebService;
 @WebService(serviceName = "AgentService", 
         portName = "AgentServicePort", 
         endpointInterface = "pl.com.kir.srpn.soap.AgentService", 
-        targetNamespace = "http://soap.srpn.kir.com.pl/", 
-        wsdlLocation = "META-INF/wsdl/AgentService.wsdl")
+        targetNamespace = "http://soap.srpn.kir.com.pl/"
+//        ,wsdlLocation = "META-INF/wsdl/AgentService.wsdl"
+        )
 public class AgentService60000002 extends AgentService {
     
 }

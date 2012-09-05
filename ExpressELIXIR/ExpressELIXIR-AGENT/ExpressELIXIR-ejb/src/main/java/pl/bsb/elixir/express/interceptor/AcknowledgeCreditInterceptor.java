@@ -38,7 +38,7 @@ public class AcknowledgeCreditInterceptor extends StatementInterceptorHelper {
                 } else {
                     status = InternalStatus.ACKNOWLEDGE_CREDIT_REJECTED;
                 }
-                addStatement(acknowledgeCreditResponse, status);
+                addStatement(((iso.std.iso._20022.tech.xsd.pacs_008_001.Document) params[0]).getFIToFICstmrCdtTrf().getCdtTrfTxInf().getPmtId().getTxId(),acknowledgeCreditResponse, status);
             } else {
                 logger.error("Return from ".concat(ic.getMethod().getName()).concat(" is null"));
             }

@@ -101,10 +101,12 @@ public class AcknowledgeCreditTest {
     public void testCorrectTransaction() {
         Mockito.when(transactionIncoming.getStatus()).thenReturn(InternalStatus.AUTHORIZE_ACCEPTED);
         Mockito.when(transactionIncoming.getTransactionAmount()).thenReturn(new Money(BigDecimal.TEN));
+        Mockito.when(transactionIncoming.getTransactionId()).thenReturn(String.valueOf(transactionId));
         Mockito.when(transactionIncomingProvider.getTransactionById(String.valueOf(transactionId))).thenReturn(transactionIncoming);
         Account account = new Account();
         account.setIban(TestData.IBAN_2);
         Mockito.when(transactionIncoming.getReceiverAccount()).thenReturn(account);
+        Mockito.doNothing().when(accountProvider).creditTransaction(transactionIncoming);
         iso.std.iso._20022.tech.xsd.pacs_002_001.Document result = acknowledgeCredit.process(acknowledgeCreditDocument.getDocument());
         assertTrue(result.getFIToFIPmtStsRpt().getTxInfAndSts().getTxSts().equals(TransactionIndividualStatus3Code.ACSC));        
     }

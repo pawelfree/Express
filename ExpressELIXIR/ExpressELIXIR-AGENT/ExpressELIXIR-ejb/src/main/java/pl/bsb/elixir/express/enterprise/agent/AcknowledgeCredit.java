@@ -4,8 +4,10 @@ import iso.std.iso._20022.tech.xsd.pacs_002_001.Document;
 import iso.std.iso._20022.tech.xsd.pacs_002_001.TransactionIndividualStatus3Code;
 import iso.std.iso._20022.tech.xsd.pacs_008_001.FIToFICustomerCreditTransferV02;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
+import javax.persistence.OptimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.IAcknowledgeCredit;
@@ -27,6 +29,7 @@ import pl.bsb.elixir.express.util.ResponseDocumentCreator;
 public class AcknowledgeCredit implements IAcknowledgeCredit {
 
     private static final Logger logger = LoggerFactory.getLogger(AcknowledgeCredit.class);
+    private static final int OPTIMISTIC_LOCK_RETRIES = 3;    
     private static final long serialVersionUID = 16L;
     @EJB
     TransactionIncomingProvider transactionIncomingProvider;
@@ -43,6 +46,54 @@ public class AcknowledgeCredit implements IAcknowledgeCredit {
         this.accountProvider = accountProvider;
     }
 
+    private boolean creditTransaction(TransactionIncoming transaction) {
+        boolean result = false;
+        for (int i = 0; i < OPTIMISTIC_LOCK_RETRIES; i++) {
+            try {
+                accountProvider.creditTransaction(transaction);
+                result = true;
+                logger.debug("Credited account for transaction "
+                        .concat(transaction.getTransactionId())
+                        .concat(" at attempt ")
+                        .concat(String.valueOf(i + 1)));
+                break;
+            } catch (Exception e) {
+                if (isOptimisticLockException(e)) {
+                    logger.info("Optimistic lock while crediting account for transaction "
+                            .concat(transaction.getTransactionId())
+                            .concat(", attempt ")
+                            .concat(String.valueOf(i + 1))
+                            .concat(", cause ") + e.getCause());
+                    continue;
+                } else {
+                    logger.error("Exception " + e.getClass() + " while crediting account for transaction "
+                            .concat(transaction.getTransactionId())
+                            .concat(", attempt ")
+                            .concat(String.valueOf(i + 1))
+                            .concat(", cause ") + e.getCause());
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean isOptimisticLockException(Exception exception) {
+        boolean result = false;
+        if (exception instanceof EJBException) {
+            Throwable  t = exception.getCause();
+            while(t != null ) {
+                if (t instanceof OptimisticLockException) {
+                    result = true;
+                    break;
+                } else {
+                    t = t.getCause();
+                }
+            }
+        } 
+        return result;
+    }    
+    
     //TODO obsługa powtórnego przysłania żądania uznania rachunku
     //TODO czy własciwy typ komunikatu
     @Override
@@ -54,22 +105,38 @@ public class AcknowledgeCredit implements IAcknowledgeCredit {
 
         TransactionIncoming transactionIncoming = transactionIncomingProvider.getTransactionById(transactionId);
 
+        boolean result;
         if (isTransactionValidToCredit(transactionIncoming, transactionId, transfer)) {
             if (transactionIncoming.getStatus().equals(InternalStatus.AUTHORIZE_ACCEPTED)) {
                 //przelew nie został jeszcze zrealizowany
-                accountProvider.creditTransaction(transactionIncoming);
-                logger.info("Account ".concat(transactionIncoming.getReceiverAccount().getFormattedAccountNumber())
-                        .concat(" credited with amount ")
-                        .concat(transactionIncoming.getTransactionAmount().getAmount().toString()));
+                if (creditTransaction(transactionIncoming)) {
+                    logger.info("Account ".concat(transactionIncoming.getReceiverAccount().getFormattedAccountNumber())
+                            .concat(" credited with amount ")
+                            .concat(transactionIncoming.getTransactionAmount().getAmount().toString()));
+                    result = true;
+                } else {
+                    logger.warn("Cant credit account "
+                            .concat(transactionIncoming.getReceiverAccount().getFormattedAccountNumber())
+                            .concat(" for transaction ").concat(transactionId)
+                            .concat(" Consult log for more information"));
+                    transactionIncoming.setStatus(InternalStatus.ACKNOWLEDGE_CREDIT_REJECTED);
+                    result = false;
+                }
             } else {//if (transactionIncoming.getStatus().equals(InternalStatus.ACKNOWLEDGE_CREDIT_ACCEPTED)) 
                 //przelew został zrealizowany wobec czego mamy do czynienia z duplikatem
                 logger.warn("Duplicate transaction found - transaction id : ".concat(transactionId)
                         .concat(" Original transaction status ").concat(transactionIncoming.getStatus().toString()));
+                result = true;
             }
+        } else {
+            result = false;
+        }
+
+        if (result) {
             response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(transfer, TransactionIndividualStatus3Code.ACSC);
         } else {
             response = ResponseDocumentCreator.createAcknowledgeCreditDebitResponse(ExternalStatusReason1Code.FF01,
-                    document.getFIToFICstmrCdtTrf(), TransactionIndividualStatus3Code.RJCT);
+                    transfer, TransactionIndividualStatus3Code.RJCT);
         }
         return response;
     }

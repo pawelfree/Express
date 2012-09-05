@@ -68,7 +68,7 @@
 	</wsdl:binding>
 	<wsdl:service name="SRPNService">
 		<wsdl:port name="SRPNServicePort" binding="tns:SRPNServiceSoapBinding">
-			<soap:address location="http://localhost:52041/SRPNService/SRPNService" />
+			<soap:address location="https://srpncert.kir.pl/srpn/iso20022" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

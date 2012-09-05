@@ -99,10 +99,12 @@ public class AcknowledgeDebitTest {
     public void testCorrectTransaction() {
         Mockito.when(transactionOutgoing.getStatus()).thenReturn(InternalStatus.ACCEPTED);
         Mockito.when(transactionOutgoing.getTransactionAmount()).thenReturn(new Money(BigDecimal.TEN));
+        Mockito.when(transactionOutgoing.getTransactionId()).thenReturn(String.valueOf(transactionId));
         Mockito.when(transactionOutgoingProvider.getTransactionById(String.valueOf(transactionId))).thenReturn(transactionOutgoing);
         Account account = new Account();
         account.setIban(TestData.IBAN_1);
         Mockito.when(transactionOutgoing.getSenderAccount()).thenReturn(account);
+        Mockito.doNothing().when(accountProvider).debitTransaction(transactionOutgoing);
         iso.std.iso._20022.tech.xsd.pacs_002_001.Document result = acknowledgeDebit.process(acknowledgeDebitDocument.getDocument());
         assertTrue(result.getFIToFIPmtStsRpt().getTxInfAndSts().getTxSts().equals(TransactionIndividualStatus3Code.ACSC));
     }

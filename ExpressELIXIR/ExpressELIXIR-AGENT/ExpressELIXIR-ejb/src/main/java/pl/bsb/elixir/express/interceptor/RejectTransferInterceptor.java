@@ -38,7 +38,7 @@ public class RejectTransferInterceptor extends StatementInterceptorHelper {
                 } else {
                     status = InternalStatus.REJECT_TRANSFER_REJECTED;
                 }
-                addStatement(rejectTransferResponse, status);
+                addStatement(((iso.std.iso._20022.tech.xsd.pacs_004_001.Document) params[0]).getPmtRtr().getTxInf().getOrgnlTxId(),rejectTransferResponse, status);
             } else {
                 logger.error("Return from ".concat(ic.getMethod().getName()).concat(" is null"));
             }
