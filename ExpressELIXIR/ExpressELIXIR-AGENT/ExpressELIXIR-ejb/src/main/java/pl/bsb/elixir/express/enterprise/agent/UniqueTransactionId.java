@@ -30,7 +30,7 @@ public class UniqueTransactionId {
      * count, but if time elapses, it uses the current time  
      * @return  the next value of the timer  
      */  
-    public synchronized Long next() {   
+    private synchronized Long next() {   
         return next(0);   
     } 
 
@@ -40,7 +40,7 @@ public class UniqueTransactionId {
      * @param delay millisecond increment  
      * @return the next value of the timer  
      */  
-    public synchronized Long next(int delay) {   
+    private synchronized Long next(int delay) {   
         Calendar now = Calendar.getInstance();   
         long tempTime = now.getTimeInMillis() + delay;   
         theCount++;   
@@ -49,4 +49,8 @@ public class UniqueTransactionId {
         }    
         return theCount;   
     }    
+ 
+    public String nextMessageId(String knr) {
+        return "000".concat(knr).concat(Long.toString(next()).substring(1));
+    }
 }

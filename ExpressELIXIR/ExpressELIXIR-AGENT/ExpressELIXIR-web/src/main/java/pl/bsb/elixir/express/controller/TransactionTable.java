@@ -125,7 +125,7 @@ public class TransactionTable implements Serializable {
             }
             //TODO błędy
             sendTransferProcessor.process(new TransactionOutgoing(
-                    "000".concat(user.getParticipant().getMainKNR()).concat(Long.toString(uniqueTransactionId.next()).substring(1)),
+                    uniqueTransactionId.nextMessageId(user.getParticipant().getMainKNR()),
                     account,
                     amount,
                     newTransaction.getReceiverIban(),
@@ -147,6 +147,7 @@ public class TransactionTable implements Serializable {
             String[] line;
             Money amount;
             String receiverIBAN;
+            String mainKNR = user.getParticipant().getMainKNR();
             for (String b : contents) {
                 line = b.split(";");
                 //TODO to sprawdzanie powinno byc lepsze np. amount > 0
@@ -161,11 +162,11 @@ public class TransactionTable implements Serializable {
                     return;
                 }
                 transactionsFromFile.add(new TransactionOutgoing(
-                        Long.toString(uniqueTransactionId.next()),
+                        uniqueTransactionId.nextMessageId(mainKNR),
                         account,
                         amount,
                         receiverIBAN,
-                        user.getParticipant().getMainKNR()));
+                        mainKNR));
             }
         } catch (IOException | NullPointerException e) {
             logger.error("Cant read file",e);

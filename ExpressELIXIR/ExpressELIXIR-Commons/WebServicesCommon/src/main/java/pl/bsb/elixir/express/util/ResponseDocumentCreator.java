@@ -170,6 +170,7 @@ public class ResponseDocumentCreator {
   {
     try {
       FIToFIPaymentStatusReportV03 fitfipsrv = new FIToFIPaymentStatusReportV03();
+      //TODO unique transaction Id
       fitfipsrv.setGrpHdr(createGroupHeader37(odbiorcaKNR, nadawcaKNR, Long.toString(System.currentTimeMillis())));
       //identyfikacja oryginalnego komunikatu
       fitfipsrv.setOrgnlGrpInfAndSts(OriginalGroupInformation20.instance(orgnMsgId, orgnMsgType));
