@@ -1,0 +1,35 @@
+4 razy czekaæ na mmail za ka¿ym razem
+
+test nr 4. 68100400032222000033330001;500
+<TxSts>RJCT</TxSts> 
+      <StsRsnInf> 
+        <Rsn> 
+          <Prtry>MVER</Prtry> 
+        </Rsn> 
+        <AddtlInf>Expected msgEncoding="iso-8859-2", received:"utf-8"</AddtlInf>
+Test nr 5. 68100400032222000033330001;500
+TxSts>RJCT</TxSts> 
+      <StsRsnInf> 
+        <Rsn> 
+          <Prtry>MVER</Prtry> 
+        </Rsn> 
+        <AddtlInf>Expected msgFormat="DELIMITED", received:"ISO20022"</AddtlInf> 
+      </StsRsnInf
+Test nr 6. 68100400032222000033330001;500
+<TxSts>RJCT</TxSts> 
+      <StsRsnInf> 
+        <Rsn> 
+          <Prtry>DATU</Prtry> 
+        </Rsn> 
+        <AddtlInf>Debtor agent is temporarily unavailable</AddtlInf> 
+      
+Test nr 9. 68100400032222000000000000;153
+ACSP     
+po telefonie do kir
+ACSC
+
+Test nr 10. 58100400452222000033330002; 170
+ACSC
+
+Test nr 12. 71100400742222000033330007;204
+AC04

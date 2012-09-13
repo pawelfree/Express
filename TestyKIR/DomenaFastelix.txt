@@ -1,0 +1,21 @@
+asadmin> create-domain fastelix
+Enter admin user name [Enter to accept default "admin" / no password]>
+Default port 4848 for Admin is in use. Using 55455
+Default port 8080 for HTTP Instance is in use. Using 55456
+Default port 7676 for JMS is in use. Using 55457
+Default port 3700 for IIOP is in use. Using 55458
+Default port 8181 for HTTP_SSL is in use. Using 55459
+Using default port 3820 for IIOP_SSL.
+Using default port 3920 for IIOP_MUTUALAUTH.
+Default port 8686 for JMX_ADMIN is in use. Using 55460
+Using default port 6666 for OSGI_SHELL.
+Using default port 9009 for JAVA_DEBUGGER.
+Distinguished Name of the self-signed X.509 Server Certificate is:
+[CN=fastelix.dev.bsb-dc.pl,OU=GlassFish,O=Oracle Corporation,L=Santa Clara,ST=California,C=US]
+Distinguished Name of the self-signed X.509 Server Certificate is:
+[CN=fastelix.dev.bsb-dc.pl-instance,OU=GlassFish,O=Oracle Corporation,L=Santa Clara,ST=California,C=US]
+No domain initializers found, bypassing customization step
+Domain fastelix created.
+Domain fastelix admin port is 55455.
+Domain fastelix allows admin login as user "admin" with no password.
+Command create-domain executed successfully.

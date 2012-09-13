@@ -16,7 +16,7 @@ import pl.bsb.elixir.express.util.ResponseDocumentCreator;
  *
  * @author paweld
  */
-@Stateless(name="SRPNService")
+@Stateless
 @WebService(serviceName = "SRPNService",
 portName = "SRPNServicePort",
 endpointInterface = "pl.com.kir.srpn.soap.SRPNService",

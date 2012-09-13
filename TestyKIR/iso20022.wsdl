@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WL5G3N0:definitions name="SRPNService" targetNamespace="http://soap.srpn.kir.com.pl/" xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/" xmlns:WL5G3N1="http://soap.srpn.kir.com.pl/" xmlns:WL5G3N2="http://schemas.xmlsoap.org/wsdl/soap/">
+  <WL5G3N0:types>
+    <xsd:schema elementFormDefault="unqualified" targetNamespace="http://soap.srpn.kir.com.pl/" version="1.0" xmlns:mc="http://www.bea.com/wli/sb/context" xmlns:ns1="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.02" xmlns:ns2="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.03" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://soap.srpn.kir.com.pl/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.02" schemaLocation="https://srpncert.kir.pl/srpn/iso20022?SCHEMA%2Fsrpn%2Fresources%2Fwsdl%2Fpacs.008.001.02_SRPN"/>
+      <xsd:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.03" schemaLocation="https://srpncert.kir.pl/srpn/iso20022?SCHEMA%2Fsrpn%2Fresources%2Fwsdl%2Fpacs.002.001.03_SRPN"/>
+      <xsd:import namespace="http://www.bea.com/wli/sb/context" schemaLocation="https://srpncert.kir.pl/srpn/iso20022?SCHEMA%2Fsrpn%2Fresources%2Fwsdl%2FMessageContext"/>
+      <xsd:element name="sendTransfer" type="tns:sendTransfer"/>
+      <xsd:element name="sendTransferResponse" type="tns:sendTransferResponse"/>
+      <xsd:element name="fault" type="mc:FaultType"/>
+      <xsd:complexType name="sendTransfer">
+        <xsd:sequence>
+          <xsd:element ref="ns1:Document"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="sendTransferResponse">
+        <xsd:sequence>
+          <xsd:element ref="ns2:Document"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </WL5G3N0:types>
+  <WL5G3N0:message name="sendTransferResponse">
+    <WL5G3N0:part element="WL5G3N1:sendTransferResponse" name="parameters"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="sendTransfer">
+    <WL5G3N0:part element="WL5G3N1:sendTransfer" name="parameters"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="fault">
+    <WL5G3N0:part element="WL5G3N1:fault" name="parameters"/>
+  </WL5G3N0:message>
+  <WL5G3N0:portType name="SRPNService">
+    <WL5G3N0:operation name="sendTransfer">
+      <WL5G3N0:input message="WL5G3N1:sendTransfer" name="sendTransfer"/>
+      <WL5G3N0:output message="WL5G3N1:sendTransferResponse" name="sendTransferResponse"/>
+      <WL5G3N0:fault message="WL5G3N1:fault" name="fault"/>
+    </WL5G3N0:operation>
+  </WL5G3N0:portType>
+  <WL5G3N0:binding name="SRPNServiceSoapBinding" type="WL5G3N1:SRPNService">
+    <WL5G3N2:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <WL5G3N0:operation name="sendTransfer">
+      <WL5G3N2:operation style="document"/>
+      <WL5G3N0:input name="sendTransfer">
+        <WL5G3N2:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output name="sendTransferResponse">
+        <WL5G3N2:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="fault">
+        <WL5G3N2:fault name="fault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+  </WL5G3N0:binding>
+  <WL5G3N0:service name="SRPNServiceSoapBindingQSService">
+    <WL5G3N0:port binding="WL5G3N1:SRPNServiceSoapBinding" name="SRPNServiceSoapBindingQSPort">
+      <WL5G3N2:address location="https://srpncert.kir.pl/srpn/iso20022"/>
+    </WL5G3N0:port>
+  </WL5G3N0:service>
+</WL5G3N0:definitions>

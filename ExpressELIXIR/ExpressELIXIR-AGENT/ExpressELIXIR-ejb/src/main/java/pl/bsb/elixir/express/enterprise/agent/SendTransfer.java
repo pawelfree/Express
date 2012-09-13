@@ -3,8 +3,10 @@ package pl.bsb.elixir.express.enterprise.agent;
 import iso.std.iso._20022.tech.xsd.pacs_008_001.Document;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
+import javax.persistence.OptimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.bsb.elixir.express.enterprise.agent.interfaces.IAgentSender;
@@ -24,6 +26,7 @@ import pl.bsb.elixir.express.util.CreditTransferV02DocumentCreator;
 public class SendTransfer implements ISendTransfer {
 
     private static final Logger logger = LoggerFactory.getLogger(SendTransfer.class);
+    private static final int OPTIMISTIC_LOCK_RETRIES = 3;
     private static final long serialVersionUID = 4L;
     @EJB
     TransactionOutgoingProvider transactionOutgoingProvider;
@@ -35,20 +38,63 @@ public class SendTransfer implements ISendTransfer {
     @Override
     public void process(List<TransactionOutgoing> transactionList) {
         int i = 1;
+        long waitTime = 250;
         for (TransactionOutgoing transactionOutgoing : transactionList) {
             System.err.println("!!!! Sending " + i++);
+            try {
+                Thread.sleep(waitTime);
+            } catch (InterruptedException ex) {
+                logger.error("ERROR while pausing ", ex);
+            }
             process(transactionOutgoing);
         }
     }
-    
+
     @Override
     public void process(TransactionOutgoing transactionOutgoing) {
+
         if (processTransaction(transactionOutgoing)) {
-            //TODO czy na pewno nie powinienem zablokować tego przed przygotowaniem odpowiedzi??
-            accountProvider.addToBlockedBalance(transactionOutgoing.getSenderAccount(), transactionOutgoing.getTransactionAmount());
+            //TODO czy na pewno nie powinienem zablokować tego przed przygotowaniem odpowiedzi??            
+            for (int i = 0; i < OPTIMISTIC_LOCK_RETRIES; i++) {
+                try{
+                   accountProvider.addToBlockedBalance(transactionOutgoing.getSenderAccount(), transactionOutgoing.getTransactionAmount());
+                } catch (Exception e) {
+                    if (isOptimisticLockException(e)) {
+                        logger.info("Optimistic lock while addToBlockedBalance for transaction "
+                                .concat(transactionOutgoing.getTransactionId())
+                                .concat(", attempt ")
+                                .concat(String.valueOf(i + 1))
+                                .concat(", cause ") + e.getCause());
+                        continue;
+                    } else {
+                        logger.error("Exception " + e.getClass() + " while addToBlockedBalance for transaction "
+                                .concat(transactionOutgoing.getTransactionId())
+                                .concat(", attempt ")
+                                .concat(String.valueOf(i + 1))
+                                .concat(", cause ") + e.getCause());
+                        break;
+                    }           
+                }
+            }
         } else {
             //TODO rób nic?
         }
+    }
+
+    private boolean isOptimisticLockException(Exception exception) {
+        boolean result = false;
+        if (exception instanceof EJBException) {
+            Throwable t = exception.getCause();
+            while (t != null) {
+                if (t instanceof OptimisticLockException) {
+                    result = true;
+                    break;
+                } else {
+                    t = t.getCause();
+                }
+            }
+        }
+        return result;
     }
 
     private boolean processTransaction(TransactionOutgoing transactionOutgoing) {

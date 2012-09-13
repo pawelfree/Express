@@ -1,6 +1,10 @@
 package pl.bsb.elixir.express.controller;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -11,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
@@ -29,6 +34,7 @@ import pl.bsb.elixir.express.entity.agent.Statement;
 import pl.bsb.elixir.express.entity.agent.Transaction;
 import pl.bsb.elixir.express.entity.agent.TransactionOutgoing;
 import pl.bsb.elixir.express.entity.agent.User;
+import pl.bsb.elixir.express.entity.agent.provider.AccountProvider;
 import pl.bsb.elixir.express.entity.agent.provider.StatementProvider;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionIncomingProvider;
 import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
@@ -42,8 +48,7 @@ import pl.bsb.elixir.express.entity.agent.provider.TransactionOutgoingProvider;
 public class TransactionTable implements Serializable {
 
     //TODO jak sie wysypie webservice to próba dodania zdetachowanej encji zamiast nowej
-    private static final Logger logger = LoggerFactory.getLogger(TransactionTable.class);    
-
+    private static final Logger logger = LoggerFactory.getLogger(TransactionTable.class);
     private static final long serialVersionUID = 3L;
     @EJB
     TransactionOutgoingProvider transactionOutgoingProvider;
@@ -55,6 +60,9 @@ public class TransactionTable implements Serializable {
     UniqueTransactionId uniqueTransactionId;
     @EJB
     StatementProvider statementProvider;
+    @EJB
+    AccountProvider accountProvider;
+
     @Inject
     MainView mainView;
     private TransactionOutgoing newTransaction;
@@ -138,25 +146,29 @@ public class TransactionTable implements Serializable {
     private List<TransactionOutgoing> transactionsFromFile = Collections.EMPTY_LIST;
 
     public void handleFileUpload(FileUploadEvent event) {
-        Account account = mainView.getNewTransactionAccount();
-        User user = mainView.getUser();
+        //Account account = mainView.getNewTransactionAccount();
+        Account account = new Account();
+        User user = mainView.getUser();        
         transactionsFromFile = new ArrayList();
         try {
-            Path path = Paths.get(event.getFile().getFileName());
-            List<String> contents = Files.readAllLines(path, Charset.defaultCharset());
+            List<String> contents = inputStream2List(event.getFile().getInputstream());            
             String[] line;
             Money amount;
+            String senderIBAN;
             String receiverIBAN;
             String mainKNR = user.getParticipant().getMainKNR();
             for (String b : contents) {
                 line = b.split(";");
                 //TODO to sprawdzanie powinno byc lepsze np. amount > 0
-                if ((line[0] == null) || (line[1] == null) || (line[0].length() != 26) || (line[1].length() == 0) ) {
+                if ((line[0] == null) || (line[1] == null) || (line[0].length() != 26) || (line[1].length() == 0)) {
                     logger.info("Error reading file");
                     return;
                 }
                 amount = new Money(new BigDecimal(line[1]));
                 receiverIBAN = line[0];
+                senderIBAN = line[2];
+                logger.info("receiverIBAN : " + receiverIBAN + ", amount : " + amount + ", senderIBAN : " + senderIBAN);
+                account = accountProvider.getAccountByIBAN(senderIBAN);
                 if (!account.canIncreaseBlockedAmount(amount)) {
                     transactionsFromFile = new ArrayList();
                     return;
@@ -169,8 +181,26 @@ public class TransactionTable implements Serializable {
                         mainKNR));
             }
         } catch (IOException | NullPointerException e) {
-            logger.error("Cant read file",e);
+            logger.error("Cant read file", e);
         }
+    }
+
+    private List<String> inputStream2List(InputStream is) {        
+        List<String> listaPrzelewow = new ArrayList<>();
+
+        try {
+            DataInputStream in = new DataInputStream(is);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String linia;
+
+            while ((linia = br.readLine()) != null) {               
+                listaPrzelewow.add(linia);
+            }
+        } catch (IOException ex) {
+            logger.error("Error while processing InputStream : " + ex.getMessage());
+        }
+
+        return listaPrzelewow;
     }
 
     public void updateSettings() {
